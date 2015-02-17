@@ -87,23 +87,23 @@ loadPackages <- function() {
     if(!try(require("GOstats"))) stop("package GOstats is missing")
     if(!try(require("Matrix"))) stop("package Matrix is missing")
     
-    source("./R code/loadData.R")
-    source("./R code/extractFactors.R")
-    source("./R code/plotPCA.R")
-    source("./R code/plotBox.R")
-    source("./R code/plotHist.R")
-    source("./R code/exprDiff.R")
-    source("./R code/loadSets.R")
-    source("./R code/useKEGGDrivenOntology.R")
-    source("./R code/plotVenn.R")
-    source("./R code/enrichSets.R")
-    source("./R code/plotNetwork.R")
-    source("./R code/plotHeatmap.R")
+    source("./Rcode/loadData.R")
+    source("./Rcode/extractFactors.R")
+    source("./Rcode/plotPCA.R")
+    source("./Rcode/plotBox.R")
+    source("./Rcode/plotHist.R")
+    source("./Rcode/exprDiff.R")
+    source("./Rcode/loadSets.R")
+    source("./Rcode/useKEGGDrivenOntology.R")
+    source("./Rcode/plotVenn.R")
+    source("./Rcode/enrichSets.R")
+    source("./Rcode/plotNetwork.R")
+    source("./Rcode/plotHeatmap.R")
     
     #     source("./R code/runQC.R")
     #     source("./R code/diffExp.R")
-    source("./R code/checkLoadArg.R")
-    source("./R code/GSCstatBatch.R")
+    source("./Rcode/checkLoadArg.R")
+    source("./Rcode/GSCstatBatch.R")
 }
 
 
@@ -155,7 +155,7 @@ gsetgroup <- "aging_pathways"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
 
 
 # vennPlot
-rm(plotVenn); source("./R code/plotVenn.R")
+rm(plotVenn); source("./Rcode/plotVenn.R")
 
 contrasts = c("temperature_C25_control - temperature_C4_H24","temperature_C25_control - temperature_C0_H24","temperature_C25_control - temperature_C-4_H24")
 dexp <- exprDiff(l_da, contrasts=contrasts)
@@ -179,8 +179,23 @@ contrasts = c("temperature_C25_control - temperature_C4_H24","temperature_C25_co
               "radiation_G0_control - radiation_G200_H48","radiation_G0_control - radiation_G500_H48","radiation_G0_control - radiation_G1200_H48",
               "starvation_none_control - starvation_exists_H16")
 dexp <- exprDiff(l_da, contrasts=contrasts)
-rm(plotNetwork); source("./R code/plotNetwork.R")
+
+
+
+gsetgroup <- "biological_process"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
+gsetgroup <- "molecular_function"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
+gsetgroup <- "cellular_component"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
+gsetgroup <- "rfbr_orthologs"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
+gsetgroup <- "kegg"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
+gsetgroup <- "aging_diseases"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
+gsetgroup <- "aging_pathways"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
 pcut <- 0.1; type="padj"
+
+
+rm(plotNetwork); source("./Rcode/plotNetwork.R")
+rm(plotHeatmap); source("./Rcode/plotHeatmap.R")
+
+
 for (contrast in contrasts) {
     if (file.exists(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcut,".rds",sep=""))) {
         gsah<- readRDS(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcut,".rds",sep=""))
@@ -204,63 +219,17 @@ for (contrast in contrasts) {
     }, error=function(e){cat("No network diagram for ", contrast, ", ", gsetgroup,"\n")})
 }
 
-control<-"temperature_C25_control - temperature_C4_H24"; gsah<- readRDS(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcut,".rds",sep="")); dexp = dexp; contrast = contrast; sets = gsets; enrset = gsah; pcutoff = pcut; type = "padj"; gsetgroup = gsetgroup
 
 
-gsetgroup <- "biological_process"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "molecular_function"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "cellular_component"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "rfbr_orthologs"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "kegg"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "aging_diseases"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "aging_pathways"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
 
-rm(plotHeatmap); source("./R code/plotHeatmap.R")
 plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = "padj", pcutoff = pcut)
 
-dexp = dexp; contrasts = contrasts; sets = gsets; gsetgroup = gsetgroup; type = "padj"; pcutoff = pcut
-
-
-contrasts = c("temperature_C25_control - temperature_C4_H24","temperature_C25_control - temperature_C0_H24","temperature_C25_control - temperature_C-4_H24")
 
 
 
-
-
-
-
+gsetgroup <- "molecular_function"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
+gsah<- readRDS(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcut,".rds",sep=""))
 dexp = dexp; contrast = contrast; sets = gsets; enrset = gsah; pcutoff = pcut; type = "padj"; gsetgroup = gsetgroup
-
-
-pcutoff = pcut <- 0.1; type = "padj"
-
-gsetgroup <- "rfbr_orthologs"; sets <- gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "aging_diseases"; sets <- gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "aging_pathways"; sets <- gsets <- loadSets(dexp=dexp, group=gsetgroup)
-
-
-contrast <- "temperature_C25_control - temperature_C4_H24"; gsah <- enrichSets(dexp = dexp, pvalues = dexp$padj[[contrast]], sets = gsets, pcutoff = pcut)
-contrast <- "temperature_C25_control - temperature_C0_H24"; gsah <- enrichSets(dexp = dexp, pvalues = dexp$padj[[contrast]], sets = gsets, pcutoff = pcut)
-contrast <- "temperature_C25_control - temperature_C-4_H24"; gsah <- enrichSets(dexp = dexp, pvalues = dexp$padj[[contrast]], sets = gsets, pcutoff = pcut)
-contrast <- "fungus_none_control - fungus_min_H24"; gsah <- enrichSets(dexp = dexp, pvalues = dexp$padj[[contrast]], sets = gsets, pcutoff = pcut)
-contrast <- "fungus_none_control - fungus_max_H24"; gsah <- enrichSets(dexp = dexp, pvalues = dexp$padj[[contrast]], sets = gsets, pcutoff = pcut)
-contrast <- "radiation_G0_control - radiation_G200_H48"; gsah <- enrichSets(dexp = dexp, pvalues = dexp$padj[[contrast]], sets = gsets, pcutoff = pcut)
-contrast <- "radiation_G0_control - radiation_G500_H48"; gsah <- enrichSets(dexp = dexp, pvalues = dexp$padj[[contrast]], sets = gsets, pcutoff = pcut)
-contrast <- "radiation_G0_control - radiation_G1200_H48"; gsah <- enrichSets(dexp = dexp, pvalues = dexp$padj[[contrast]], sets = gsets, pcutoff = pcut)
-contrast <- "starvation_none_control - starvation_exists_H16"; gsah <- enrichSets(dexp = dexp, pvalues = dexp$padj[[contrast]], sets = gsets, pcutoff = pcut)
-
-
-pvalues <- dexp$padj[[contrast]]; pvalues[pvalues==0] <- 1e-10
-dt <- data.frame("FBtranscriptID"=dexp$name, "padj"=pvalues, "lgfc"=dexp$lgFC[[contrast]])
-dt$FBtranscriptID <- as.character(dt$FBtranscriptID)
-dt[is.na(dt$padj),2] <- 1; dt[is.na(dt$lgfc),3] <- 0; sets[is.na(sets$ENTREZID)==TRUE,2] <- "unknown"; sets[is.na(sets$GSET)==TRUE,3] <- "unknown"
-dtd <- merge(dt, sets,by="FBtranscriptID")
-lst_n <- dtd[which(dtd$GSET %in% enrset[enrset$padj <= pcutoff,"gset"] & dtd$padj <= pcutoff & dtd$lgfc < 0),c(5,4)]; lst_p <- dtd[which(dtd$GSET %in% enrset[enrset$padj <= pcutoff,"gset"] & dtd$padj <= pcutoff & dtd$lgfc > 0),c(5,4)]
-mlst_p <- merge(lst_p,lst_p,by="ENTREZID"); mlst_n <- merge(lst_n,lst_n,by="ENTREZID")
-am_p <- get.adjacency(graph.edgelist(as.matrix(mlst_p[,2:3]), directed=FALSE)); am_n <- get.adjacency(graph.edgelist(as.matrix(mlst_n[,2:3]), directed=FALSE))
-if (length(lst_p[,1])>0) {dev.new(); plot(graph.adjacency(am_p, mode="min",weighted=TRUE,add.rownames = TRUE,diag=FALSE),main=paste(contrast, "up-regulated", sep=", "))}
-if (length(lst_n[,1])>0) {dev.new(); plot(graph.adjacency(am_n, mode="min",weighted=TRUE,add.rownames = TRUE,diag=FALSE),main=paste(contrast, "down-regulated", sep=", "))}
-
 
 
 

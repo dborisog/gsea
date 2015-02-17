@@ -2,6 +2,12 @@ plotVenn <- function(data, transcript2gene, contrasts, pvalue=0.05, adj.pvalue=0
     
     transcript2gene <- transcript2gene[,1:2]; colnames(transcript2gene) <- c("ENSEMBLTRANS", "ENTREZID")
     lng <- length(contrasts)+1
+    v_contr <- vector() 
+    for (contrast in contrasts) {
+        a <- unlist(strsplit(contrast, split=" - "))
+        v_contr <- append(v_contr, a[2])
+    }
+    
     
     m.tnp <- matrix(nrow=length(data$pval[[1]]),ncol=length(contrasts))
     m.tna <- matrix(nrow=length(data$padj[[1]]),ncol=length(contrasts))
@@ -36,11 +42,11 @@ plotVenn <- function(data, transcript2gene, contrasts, pvalue=0.05, adj.pvalue=0
     
     ####
     #### create venn diagram
-    nm <- LETTERS[seq(from = 1, to = length(contrasts))]
-    tx <- paste(nm, ': ',contrasts, '; ', sep="", collapse="")
+    nm <- LETTERS[seq(from = 1, to = length(v_contr))]
+    tx <- paste(nm, ': ',v_contr, '; ', sep="", collapse="")
     ps <- gregexpr("; ", tx)[[1]][2]
     substr(tx,start=ps, stop=(ps+1)) <- "\n"
-    dev.new()
+    png(paste("./Figures/venn_all_",v_contr[1],".png",sep=""),width=2100,height=2100,res=300,pointsize=8)
     par(mfrow=c(2,2), mar=c(4,4,0.5,0.5), oma=c(1.5,2,1,1))
     vennDiagram(m.tnp,names=nm,cex=1,main=paste("\n\nTranscripts, p-value <= ",pvalue,sep=""),cex.main=1)
     vennDiagram(m.gnp,names=nm,cex=1,main=paste("\n\nGenes, p-value <= ",pvalue,sep=""),cex.main=1)
@@ -49,6 +55,7 @@ plotVenn <- function(data, transcript2gene, contrasts, pvalue=0.05, adj.pvalue=0
     par(mfrow=c(1,1), mar=c(0,3,1,1))
     mtext("Significant transcripts and genes.\n\n",side=2,cex=1.3)
     mtext(tx,side=1, cex=0.95)
+    dev.off()
     
     
     #######################
@@ -86,11 +93,11 @@ plotVenn <- function(data, transcript2gene, contrasts, pvalue=0.05, adj.pvalue=0
     
     ####
     #### create venn diagram
-    nm <- LETTERS[seq(from = 1, to = length(contrasts))]
-    tx <- paste(nm, ': ',contrasts, '; ', sep="", collapse="")
+    nm <- LETTERS[seq(from = 1, to = length(v_contr))]
+    tx <- paste(nm, ': ',v_contr, '; ', sep="", collapse="")
     ps <- gregexpr("; ", tx)[[1]][2]
     substr(tx,start=ps, stop=(ps+1)) <- "\n"
-    dev.new()
+    png(paste("./Figures/venn_up_",v_contr[1],".png",sep=""),width=2100,height=2100,res=300,pointsize=8)
     par(mfrow=c(2,2), mar=c(4,4,0.5,0.5), oma=c(1.5,2,1,1))
     vennDiagram(m.tupp,names=nm,cex=1,main=paste("\n\nTranscripts, p-value <= ",pvalue,sep=""),cex.main=1)
     vennDiagram(m.gupp,names=nm,cex=1,main=paste("\n\nGenes, p-value <= ",pvalue,sep=""),cex.main=1)
@@ -99,6 +106,7 @@ plotVenn <- function(data, transcript2gene, contrasts, pvalue=0.05, adj.pvalue=0
     par(mfrow=c(1,1), mar=c(0,3,1,1))
     mtext("Up-regulated transcripts and genes.\n\n",side=2,cex=1.3)
     mtext(tx,side=1, cex=0.95)
+    dev.off()
     
     #######################
     #######################
@@ -135,11 +143,11 @@ plotVenn <- function(data, transcript2gene, contrasts, pvalue=0.05, adj.pvalue=0
     
     ####
     #### create venn diagram
-    nm <- LETTERS[seq(from = 1, to = length(contrasts))]
-    tx <- paste(nm, ': ',contrasts, '; ', sep="", collapse="")
+    nm <- LETTERS[seq(from = 1, to = length(v_contr))]
+    tx <- paste(nm, ': ',v_contr, '; ', sep="", collapse="")
     ps <- gregexpr("; ", tx)[[1]][2]
     substr(tx,start=ps, stop=(ps+1)) <- "\n"
-    dev.new()
+    png(paste("./Figures/venn_down_",v_contr[1],".png",sep=""),width=2100,height=2100,res=300,pointsize=8)
     par(mfrow=c(2,2), mar=c(4,4,0.5,0.5), oma=c(1.5,2,1,1))
     vennDiagram(m.tdwp,names=nm,cex=1,main=paste("\n\nTranscripts, p-value <= ",pvalue,sep=""),cex.main=1)
     vennDiagram(m.gdwp,names=nm,cex=1,main=paste("\n\nGenes, p-value <= ",pvalue,sep=""),cex.main=1)
@@ -148,4 +156,15 @@ plotVenn <- function(data, transcript2gene, contrasts, pvalue=0.05, adj.pvalue=0
     par(mfrow=c(1,1), mar=c(0,3,1,1))
     mtext("Down-regulated transcripts and genes.\n\n",side=2,cex=1.3)
     mtext(tx,side=1, cex=0.95)
+    dev.off()
 }
+
+
+
+
+
+
+
+
+
+

@@ -59,20 +59,21 @@
 <icon BUILTIN="messagebox_warning"/>
 </node>
 </node>
-<node CREATED="1422851949848" ID="ID_48893852" MODIFIED="1423349541181" POSITION="left" TEXT="exprDiff()">
+<node CREATED="1422851949848" ID="ID_48893852" MODIFIED="1424186375019" POSITION="left" TEXT="exprDiff()">
 <icon BUILTIN="button_ok"/>
 <node CREATED="1422897230266" ID="ID_1234645991" MODIFIED="1422897275538" TEXT="still have NA values, though might remove them in the future">
 <icon BUILTIN="messagebox_warning"/>
 </node>
 </node>
-<node CREATED="1422853221352" FOLDED="true" ID="ID_1408643653" MODIFIED="1423726627619" POSITION="left" TEXT="plotVenn()">
-<icon BUILTIN="button_cancel"/>
-<icon BUILTIN="full-3"/>
-<node CREATED="1423066688435" ID="ID_1595629199" MODIFIED="1423726580901" TEXT="numbers do not add up">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1422853221352" FOLDED="true" ID="ID_1408643653" MODIFIED="1424186373440" POSITION="left" TEXT="plotVenn()">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1423066688435" ID="ID_1595629199" MODIFIED="1424186345796" TEXT="numbers do not add up">
+<icon BUILTIN="closed"/>
+<node CREATED="1424186347020" ID="ID_1080361510" MODIFIED="1424186353167" TEXT="wrong"/>
 </node>
-<node CREATED="1423726536000" ID="ID_1775914233" MODIFIED="1423726580901" TEXT="combine up &amp; down graphs into one">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1423726536000" ID="ID_1775914233" MODIFIED="1424186358407" TEXT="combine up &amp; down graphs into one">
+<icon BUILTIN="closed"/>
+<node CREATED="1424186361484" ID="ID_468616601" MODIFIED="1424186365152" TEXT="not now"/>
 </node>
 </node>
 <node CREATED="1422852665875" FOLDED="true" ID="ID_1795803023" MODIFIED="1423049119369" POSITION="left" TEXT="loadSets()">
@@ -109,28 +110,29 @@
 <node CREATED="1422851955447" ID="ID_802957777" MODIFIED="1423349539720" POSITION="left" TEXT="enrichSets()">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1422853227965" FOLDED="true" ID="ID_556423007" MODIFIED="1423726629449" POSITION="left" TEXT="networkPlot()">
-<icon BUILTIN="button_cancel"/>
-<icon BUILTIN="full-2"/>
+<node CREATED="1422853227965" ID="ID_556423007" MODIFIED="1424186412175" POSITION="left" TEXT="networkPlot()">
+<icon BUILTIN="idea"/>
 <node CREATED="1423396788005" ID="ID_1058341602" MODIFIED="1423726407066" TEXT="up and down regulated">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1423726184583" ID="ID_805341353" MODIFIED="1423726422942" TEXT="node size is driven by No of DE genes in gset">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1423726184583" ID="ID_805341353" MODIFIED="1424184674531" TEXT="node size is driven by No of DE genes in gset">
+<icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1423726204774" ID="ID_1370785481" MODIFIED="1423726422942" TEXT="edge width is driven by ">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1423726204774" ID="ID_1370785481" MODIFIED="1424184686779" TEXT="edge width is driven by ">
+<icon BUILTIN="closed"/>
+<node CREATED="1424184689088" ID="ID_1131630673" MODIFIED="1424184698024" TEXT="difficult to understand"/>
 </node>
-<node CREATED="1423726411423" ID="ID_1428285727" MODIFIED="1423726422941" TEXT="add DE genes to the graph">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1423726411423" ID="ID_1428285727" MODIFIED="1424186406935" TEXT="add DE genes to the graph">
+<icon BUILTIN="help"/>
+<node CREATED="1424184709095" ID="ID_1370575972" MODIFIED="1424184714644" TEXT="see the table"/>
 </node>
-<node CREATED="1423726084944" ID="ID_1459962194" MODIFIED="1423726485878" TEXT="table of up &amp; down DE genes">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1423726084944" ID="ID_1459962194" MODIFIED="1424184747138" TEXT="table of up &amp; down DE genes">
+<icon BUILTIN="closed"/>
+<node CREATED="1424184748190" ID="ID_814653732" MODIFIED="1424184755755" TEXT="see tables for heatmaps"/>
 </node>
 </node>
-<node CREATED="1422853234539" ID="ID_1174396967" MODIFIED="1423726615116" POSITION="left" TEXT="heatmapPlot()">
-<icon BUILTIN="idea"/>
-<icon BUILTIN="full-1"/>
+<node CREATED="1422853234539" ID="ID_1174396967" MODIFIED="1424186390607" POSITION="left" TEXT="heatmapPlot()">
+<icon BUILTIN="button_ok"/>
 <node CREATED="1423368808154" ID="ID_526777496" MODIFIED="1423845038379" TEXT="up and down regulated">
 <icon BUILTIN="button_ok"/>
 <node CREATED="1423755001077" ID="ID_1095746954" MODIFIED="1423755005870" TEXT="significant gene sets, any-regulated">
@@ -159,16 +161,15 @@
   <body>
     <span style="text-indent: 0px; display: inline !important; font-weight: normal; background-color: rgb(255, 255, 255); color: rgb(20, 24, 35); font-variant: normal; text-align: left; word-spacing: 0px; white-space: pre-wrap; font-style: normal; letter-spacing: normal; font-size: 13px; float: none; line-height: 16.3090915679932px; font-family: Helvetica, Arial, lucida grande, tahoma, verdana, arial, sans-serif; text-transform: none"><font color="rgb(20, 24, 35)" size="13px" face="Helvetica, Arial, lucida grande, tahoma, verdana, arial, sans-serif">library(&quot;RColorBrewer&quot;) colorRampPalette(brewer.pal(9, &quot;GnBu&quot;))(100)</font></span>
   </body>
-</html>
-</richcontent>
+</html></richcontent>
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1423726149978" ID="ID_1702454127" MODIFIED="1423845028763" TEXT="padj &amp; pval heatmaps">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1423726084944" ID="ID_1683521141" MODIFIED="1423845041531" TEXT="table of up &amp; down DE genes">
-<icon BUILTIN="idea"/>
+<node CREATED="1423726084944" ID="ID_1683521141" MODIFIED="1424184655579" TEXT="table of up &amp; down DE genes">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1422897369369" ID="ID_1812239046" MODIFIED="1423378979560" POSITION="left" TEXT="new functions">

@@ -80,7 +80,7 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     df_tr_fc_simpl <- as.data.frame(m_tr_fc_simpl); 
     df_tr_fc_simpl$FBtranscriptID <- rownames(df_tr_fc_simpl)
     
-    df_sets_gs_simpl <- merge(sets,df_tr_fc_simpl,by="FBtranscriptID")                     # !!!!!
+    df_sets_gs_simpl <- merge(sets,df_tr_fc_simpl,by="FBtranscriptID")
     df_sets_gs_sg_simpl <- df_sets_gs_simpl[df_sets_gs_simpl$GSET %in% v_gs_sg_names,]
     
     
@@ -111,98 +111,67 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     df_gs_sgn_simpl[df_gs_sgn_simpl == 2] <- 1
     
     
-    # prepare matrices for plotting
-    colnames(df_gs_sga_simpl) <- colnames(df_gs_sgp_simpl) <- colnames(df_gs_sgn_simpl) <- v_contr
-    m_gs_sga_simpl <- as.matrix(df_gs_sga_simpl); m_gs_sgp_simpl <- as.matrix(df_gs_sgp_simpl); m_gs_sgn_simpl <- as.matrix(df_gs_sgn_simpl); 
-    
+        
     #########################
     # calculate DE-related genes
     # prepare data
-    if (type=="pval"){
-        df_pval <- dexp$pval
-    } else {
-        df_pval <- dexp$padj
+    df_sets_gs_simpl$FBtranscriptID <- NULL
+    df_sets_gs_simpl_a <- df_sets_gs_simpl_p <- df_sets_gs_simpl_n <- df_sets_gs_simpl
+    #
+    for (i in 3:(length(v_contr)+2)) {
+        df_sets_gs_simpl_a[df_sets_gs_simpl_a[,i] != 0,i] <- 1
+        #
+        df_sets_gs_simpl_p[df_sets_gs_simpl_p[,i] != 1,i] <- 0
+        #
+        df_sets_gs_simpl_n[df_sets_gs_simpl_n[,i] != -1,i] <- 0
+        df_sets_gs_simpl_n[df_sets_gs_simpl_n[,i] == -1,i] <- 1
     }
-    
-    df_pval[df_pval==0] <- 1e-10; df_pval[is.na(df_pval)] <- 1
-    df_pval[df_pval > pcutoff] <- 2; df_pval[df_pval <= pcutoff] <- 1; df_pval[df_pval == 2] <- 0;
-    
-    df_lgfc <- dexp$lgFC; df_lgfc[is.na(df_lgfc)] <- 0
-    df_lgfcp <- df_lgfcn <- df_lgfc
-    df_lgfcp[df_lgfcp > 0] <- 1; df_lgfcp[df_lgfcp < 0] <- 0
-    df_lgfcn[df_lgfcn > 0] <- 0; df_lgfcn[df_lgfcn < 0] <- 1
-    
-    df_pvalp <- df_pval + df_lgfcp; df_pvalp[df_pvalp == 1] <- 0; df_pvalp[df_pvalp == 2] <- 1
-    df_pvaln <- df_pval + df_lgfcn; df_pvaln[df_pvaln == 1] <- 0; df_pvaln[df_pvaln == 2] <- 1
-    
-    
-    countDEgenes <- function(df_pval, sets, v_contr){
-        df_pval$FBtranscriptID <- rownames(df_pval)
-        df_de_tr_gset  <- merge(sets,df_pval,by="FBtranscriptID")
-        df_gene_tr_count  <- setkey(setDT(df_de_tr_gset[,c(2,4:length(df_de_tr_gset))]), ENTREZID)[, lapply(.SD, sum), ENTREZID];   df_gene_tr_count <- as.data.frame(df_gene_tr_count)
-        df_tmp <- df_gene_tr_count[,2:length(df_gene_tr_count)];   df_tmp[df_tmp !=0 ] <- 1; df_gene_tr_count[,2:length(df_gene_tr_count)] <- df_tmp
-        df_de_gn_gset  <- merge(sets[complete.cases(sets),2:3],df_gene_tr_count[complete.cases(df_gene_tr_count),],by="ENTREZID")
-        df_gset_gn_count  <- setkey(setDT(df_de_gn_gset[,c(2:length(df_de_gn_gset))]), GSET)[, lapply(.SD, sum), GSET];   df_gset_gn_count  <- as.data.frame(df_gset_gn_count)
-        rownames(df_gset_gn_count)  <- df_gset_gn_count$GSET;  df_gset_gn_count$GSET  <- NULL; colnames(df_gset_gn_count)  <- v_contr
-        df_gset_gn_count <- df_gset_gn_count[rowSums(df_gset_gn_count) > 0,]
-        
-        return(as.matrix(df_gset_gn_count))
-    }
-    
-    
-    m_gset_gn_counta <- countDEgenes(df_pval, sets, v_contr)
-    m_gset_gn_countp <- countDEgenes(df_pvalp, sets, v_contr)
-    m_gset_gn_countn <- countDEgenes(df_pvaln, sets, v_contr)
 
+    
+    countDEgenes <- function(df_gene_simpl){
+        
+        df_gene_simpl <- df_gene_simpl[!duplicated(df_gene_simpl),]
+        df_gene_simpl$ENTREZID <- NULL
+        df_gene_simpl_count  <- setkey(setDT(df_gene_simpl), GSET)[, lapply(.SD, sum), GSET];   df_gene_simpl_count <- as.data.frame(df_gene_simpl_count)
+        
+        rownames(df_gene_simpl_count) <- df_gene_simpl_count$GSET
+        df_gene_simpl_count$GSET <- NULL
+        
+        m_gene_simpl_count <- as.matrix(df_gene_simpl_count)
+        m_gene_simpl_count <-m_gene_simpl_count[which(rowSums(m_gene_simpl_count)>0),]
+        
+        return(m_gene_simpl_count)
+        
+    }
+    
     
     listGenes <- function (df_sets_gs_simpl, m_gs_count, sets, v_contr){
         v_gs_names <- names(as.matrix(m_gs_count)[,1])
         df_entrList <- data.frame()
         
-#         for (i in 1:length(v_contr)){
-#             v_col <- c(1,2,(i+2))
-#             df_tmpr <- df_sets_gs_simpl[,v_col]
-#             for (j in 1:length(v_gs_names)) {
-#                 tmp <- paste(unique(sort(df_tmpr[which(df_tmpr[,3]>0 & df_tmpr[,2]==v_gs_names[j]),1])), collapse=", ")
-#                 if (length(tmp)>0) {df_entrList[j,i] <- tmp}
-#             }
-#         }
-
         for (i in 1:length(v_contr)){
             v_col <- c(1,2,(i+2))
             df_tmpr <- df_sets_gs_simpl[,v_col]
             for (j in 1:length(v_gs_names)) {
                 tmp <- paste(unique(sort(df_tmpr[which(df_tmpr[,3]>0 & df_tmpr[,2]==v_gs_names[j]),1])), collapse=", ")
-                print (paste(j,i,tmp,sep=" :: "))
                 if ( m_gs_count[j,i] != 0) {df_entrList[j,i] <- tmp} else {df_entrList[j,i] <- NA}
             }
         }
         
         colnames(df_entrList) <- v_contr; rownames(df_entrList) <- v_gs_names
+        df_entrList$GSET <- v_gs_names
         return(df_entrList)
     }
     
-
-
-
-    df_sets_gs_simpl_a <- df_sets_gs_simpl
-    df_sets_gs_simpl_a$FBtranscriptID <- NULL
-    for (i in 3:(length(v_contr)+2)) {
-        df_sets_gs_simpl_a[df_sets_gs_simpl_a[,i] != 0,i] <- 1
-    }
     
-    df_sets_gs_simpl_p <- df_sets_gs_simpl
-    df_sets_gs_simpl_p$FBtranscriptID <- NULL
-    for (i in 3:(length(v_contr)+2)) {
-        df_sets_gs_simpl_p[df_sets_gs_simpl_p[,i] != 1,i] <- 0
-    }
+    m_gset_gn_counta <- countDEgenes(df_sets_gs_simpl_a)
+    m_gset_gn_countp <- countDEgenes(df_sets_gs_simpl_p)
+    m_gset_gn_countn <- countDEgenes(df_sets_gs_simpl_n)
     
-    df_sets_gs_simpl_n <- df_sets_gs_simpl
-    df_sets_gs_simpl_n$FBtranscriptID <- NULL
-    for (i in 3:(length(v_contr)+2)) {
-        df_sets_gs_simpl_n[df_sets_gs_simpl_n[,i] != -1,i] <- 0
-        df_sets_gs_simpl_n[df_sets_gs_simpl_n[,i] == -1,i] <- 1
-    }
+    # prepare matrices for plotting
+    colnames(df_gs_sga_simpl) <- colnames(df_gs_sgp_simpl) <- colnames(df_gs_sgn_simpl) <- v_contr
+    m_gs_sga_simpl <- as.matrix(df_gs_sga_simpl); m_gs_sgp_simpl <- as.matrix(df_gs_sgp_simpl); m_gs_sgn_simpl <- as.matrix(df_gs_sgn_simpl); 
+    colnames(m_gset_gn_counta) <- colnames(m_gset_gn_countp) <- colnames(m_gset_gn_countn) <- v_contr
     
     
 
@@ -214,56 +183,46 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     df_entrList_dep <- listGenes(df_sets_gs_simpl_p, m_gset_gn_countp, sets, v_contr)
     df_entrList_den <- listGenes(df_sets_gs_simpl_n, m_gset_gn_countn, sets, v_contr)
 
+
+    
     # draw heatmaps
-#     dev.new(width=7,height=12); par(pin=(c(7,12))); 
-#     par$pin <- c(7,12)
-#     par(pin=(c(7,12)));
     if (length(m_gs_sga_simpl)>0) {
-#         dev.new(width=7,height=12);
         png(paste("./Figures/heatmap_",gsetgroup,"_sg_all_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gs_sga_simpl)[1]+1800),res=300,pointsize=8)
         heatmap.2(m_gs_sga_simpl, col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("All significant gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5) 
         dev.off()
-        write.table(df_entrList_sa,file=paste("./Figures/heatmap_",gsetgroup,"_sg_all_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=TRUE,col.names=TRUE)
+        write.table(df_entrList_sa,file=paste("./Figures/heatmap_",gsetgroup,"_sg_all_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
     }
     if (length(m_gs_sgp_simpl)>0) {
-#         dev.new(width=7,height=12);
         png(paste("./Figures/heatmap_",gsetgroup,"_sg_pos_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gs_sgp_simpl)[1]+1800),res=300,pointsize=8)
         heatmap.2(m_gs_sgp_simpl, col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Up-regulated significant gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5) 
         dev.off()
-#         write.table(df_entrList_sp,file=paste("./Figures/heatmap_",gsetgroup,"_sg_pos_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=TRUE,col.names=TRUE)
-#         df_entrList_sp
+        write.table(df_entrList_sp,file=paste("./Figures/heatmap_",gsetgroup,"_sg_pos_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
     }
     if (length(m_gs_sgn_simpl)>0) {
-#         dev.new(width=7,height=12);
         png(paste("./Figures/heatmap_",gsetgroup,"_sg_neg_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gs_sgn_simpl)[1]+1800),res=300,pointsize=8)
         heatmap.2(m_gs_sgn_simpl, col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(18,9), Key=TRUE, keysize=1, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Down-regulated significant gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5) 
         dev.off()
-#         write.table(df_entrList_sn,file=paste("./Figures/heatmap_",gsetgroup,"_sg_neg_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=TRUE,col.names=TRUE)
-#         df_entrList_sn
+        write.table(df_entrList_sn,file=paste("./Figures/heatmap_",gsetgroup,"_sg_neg_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
     }
             
-#     if (length(m_gset_gn_counta)>0) {
-# #         dev.new(width=7,height=12);
-#         png(paste("./Figures/heatmap_",gsetgroup,"_de_all_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_counta)[1]+1800),res=300,pointsize=8)
-#         heatmap.2(m_gset_gn_counta,col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=1, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("All DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
-#         dev.off()
-#         write.table(df_entrList_dea,file=paste("./Figures/heatmap_",gsetgroup,"_de_all_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=TRUE,col.names=TRUE)
-# #         df_entrList_dea
-#     }
-#     if (length(m_gset_gn_countp)>0) {
-# #         dev.new(width=7,height=12);
-#         png(paste("./Figures/heatmap_",gsetgroup,"_de_pos_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_countp)[1]+1800),res=300,pointsize=8)
-#         heatmap.2(m_gset_gn_countp,col=colorRampPalette(brewer.pal(9,"GnBu"))(100), ,lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Up-regulated DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
-#         dev.off()
-# #         df_entrList_dep
-#     }
-#     if (length(m_gset_gn_countn)>0) {
-# #         dev.new(width=7,height=12);
-#         png(paste("./Figures/heatmap_",gsetgroup,"_de_neg_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_countn)[1]+800),res=300,pointsize=8)
-#         heatmap.2(m_gset_gn_countn,col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Down-regulated DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
-#         dev.off()
-# #         df_entrList_den
-#     }
+    if (length(m_gset_gn_counta)>0) {
+        png(paste("./Figures/heatmap_",gsetgroup,"_de_all_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_counta)[1]+1800),res=300,pointsize=8)
+        heatmap.2(m_gset_gn_counta,col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=1, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("All DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
+        dev.off()
+        write.table(df_entrList_dea,file=paste("./Figures/heatmap_",gsetgroup,"_de_all_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
+    }
+    if (length(m_gset_gn_countp)>0) {
+        png(paste("./Figures/heatmap_",gsetgroup,"_de_pos_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_countp)[1]+1800),res=300,pointsize=8)
+        heatmap.2(m_gset_gn_countp,col=colorRampPalette(brewer.pal(9,"GnBu"))(100), ,lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Up-regulated DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
+        dev.off()
+        write.table(df_entrList_dep,file=paste("./Figures/heatmap_",gsetgroup,"_de_pos_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
+    }
+    if (length(m_gset_gn_countn)>0) {
+        png(paste("./Figures/heatmap_",gsetgroup,"_de_neg_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_countn)[1]+1800),res=300,pointsize=8)
+        heatmap.2(m_gset_gn_countn,col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Down-regulated DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
+        dev.off()
+        write.table(df_entrList_den,file=paste("./Figures/heatmap_",gsetgroup,"_de_neg_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
+    }
 
 #     
 }
