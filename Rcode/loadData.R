@@ -9,8 +9,8 @@ loadData <- function(datadir=getwd(), countfile, setup) {
         
 
 		# load data I do no quality checks for now assuming that everything is OK
-		countTable <- read.csv(paste(getwd(),countfile,sep=""), header = TRUE, row.names=1, sep = ",", fill = TRUE)
-		setup <- read.csv(paste(getwd(),setup,sep=""), header = TRUE, row.names=1, sep = "",  dec = ",", fill = TRUE, as.is=TRUE)
+		countTable <- read.csv(paste(datadir,countfile,sep=""), header = TRUE, row.names=1, sep = ",", fill = TRUE)
+		setup <- read.csv(paste(datadir,setup,sep=""), header = TRUE, row.names=1, sep = "",  dec = ",", fill = TRUE, as.is=TRUE)
 		#
 		factorAnnot <- setup[,1]
 		if(dim(setup)[2] > 1) {
