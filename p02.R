@@ -1,6 +1,11 @@
 ##############
 
-setwd("C:/Users/user/Google Drive/Work/Semantic research framework/RFBR 2014, Aging gene ontology on invertebrates/GSEA/GSEA_vc01/Data/p02/fly_counts_FBtr")
+path = "/home/antonkulaga/denigma/gsea/"
+#path = "C:/Users/user/Google Drive/Work/Semantic research framework/RFBR 2014, Aging gene ontology on invertebrates/GSEA/GSEA_vc01/"
+dataFolder = paste(path,"Data/",sep ="")
+flyData = paste(dataFolder,"p02/fly_counts_FBtr",sep ="")
+
+setwd(flyData)
 
 X1C0M1 <- read.table(file="1C0M1.counts", sep="")
 X2C0M1 <- read.table(file="2C0M1.counts", sep="")
@@ -57,7 +62,7 @@ countTable <- data.frame("TRANSCRIPTS"=X1C0M1[,1],
                          "X1S1M1"=X1S1M1[,2],
                          "X2S1M1"=X2S1M1[,2])
 
-setwd("C:/Users/user/Google Drive/Work/Semantic research framework/RFBR 2014, Aging gene ontology on invertebrates/GSEA/GSEA_vc01")
+setwd(path)
 write.table(countTable, file = "./Data/p02/p02_all.csv",sep=",",col.names=TRUE,row.names=FALSE)
 
 fbgbtr <- read.table(file="./Data/fbgn_fbtr_fbpp_fb_2014_06.csv", sep="", fill=TRUE)
@@ -65,63 +70,70 @@ fbgbtr <- read.table(file="./Data/fbgn_fbtr_fbpp_fb_2014_06.csv", sep="", fill=T
 
 #############
 rm(list=ls())
-loadPackages <- function() {
-    if(!try(require("DESeq"))) stop("package affy is missing")
-    if(!try(require("affy"))) stop("package affy is missing")
-    if(!try(require("affyPLM"))) stop("package affyPLM is missing")
-    if(!try(require("plier"))) stop("package plier is missing")
-    if(!try(require("limma"))) stop("package limma is missing")
-    if(!try(require("biomaRt"))) stop("package biomaRt is missing")
-    if(!try(require("org.Dm.eg.db"))) stop("package org.Dm.eg.db is missing")
-    if(!try(require("org.Hs.eg.db"))) stop("package org.Hs.eg.db is missing")
-    if(!try(require("igraph"))) stop("igraph")
-    if(!try(require("marray"))) stop("marray")
-    if(!try(require("AnnotationDbi"))) stop("AnnotationDbi")
-    if(!try(require("gplots"))) stop("gplots")
-    if(!try(require("GO.db"))) stop("GO.db")
-    if(!try(require("KEGG.db"))) stop("KEGG.db")
-    if(!try(require("data.table"))) stop("data.table")
-    if(!try(require("gProfileR"))) stop("package gProfileR is missing")
-    if(!try(require("RColorBrewer"))) stop("package RColorBrewer is missing")
-    if(!try(require("Category"))) stop("package Category is missing")
-    if(!try(require("GOstats"))) stop("package GOstats is missing")
-    if(!try(require("Matrix"))) stop("package Matrix is missing")
-    
-    source("./Rcode/loadData.R")
-    source("./Rcode/extractFactors.R")
-    source("./Rcode/plotPCA.R")
-    source("./Rcode/plotBox.R")
-    source("./Rcode/plotHist.R")
-    source("./Rcode/exprDiff.R")
-    source("./Rcode/loadSets.R")
-    source("./Rcode/useKEGGDrivenOntology.R")
-    source("./Rcode/plotVenn.R")
-    source("./Rcode/enrichSets.R")
-    source("./Rcode/plotNetwork.R")
-    source("./Rcode/plotHeatmap.R")
-    
-    #     source("./R code/runQC.R")
-    #     source("./R code/diffExp.R")
-    source("./Rcode/checkLoadArg.R")
-    source("./Rcode/GSCstatBatch.R")
+path = "/home/antonkulaga/denigma/gsea/" #variable for base folder
+#path = "C:/Users/user/Google Drive/Work/Semantic research framework/RFBR 2014, Aging gene ontology on invertebrates/GSEA/GSEA_vc01/"
+dataFolder = paste(path,"Data/",sep ="") #variable for data folder
+
+#vector of packages names
+packages <- c("DESeq","affy","affyPLM","plier","limma",
+              "biomaRt","org.Dm.eg.db","org.Hs.eg.db","igraph",
+              "marray","AnnotationDbi","gplots","GO.db","KEGG.db",
+              "data.table","gProfileR","RColorBrewer","Category","GOstats","Matrix")
+src = paste(path,"Rcode/",sep="")
+
+#function that loads packages 
+#and tries to download those that are not installed
+loadPackages <- function(pkgs,src) {
+  source("http://bioconductor.org/biocLite.R") #enable biocLite
+  library()  
+  for(lib in pkgs){     
+    if( !require(character.only = TRUE,package = lib, quietly = TRUE) ) {
+      print(paste("trying to install",lib,"..."))
+      biocLite(lib, dependencies=TRUE)
+      require(character.only = TRUE,package = lib)
+    }
+  }              
+}
+
+loadSources = function(){
+  source("./Rcode/loadData.R")
+  source("./Rcode/extractFactors.R")
+  source("./Rcode/plotPCA.R")
+  source("./Rcode/plotBox.R")
+  source("./Rcode/plotHist.R")
+  source("./Rcode/exprDiff.R")
+  source("./Rcode/loadSets.R")
+  source("./Rcode/useKEGGDrivenOntology.R")
+  source("./Rcode/plotVenn.R")
+  source("./Rcode/enrichSets.R")
+  source("./Rcode/plotNetwork.R")
+  source("./Rcode/plotHeatmap.R")
+  
+  #     source("./R code/runQC.R")
+  #     source("./R code/diffExp.R")
+  source("./Rcode/checkLoadArg.R")
+  source("./Rcode/GSCstatBatch.R")  
 }
 
 
-
-setwd("C:/Users/user/gitrep/gsea")
-loadPackages()
-
+#setwd("C:/Users/user/gitrep/gsea")
+setwd(path)
+loadPackages(packages,src)
+loadSources()
+conc = function(one,two) {paste(one,two,sep="")} #shorcut function for concatenation
 
 #############
-# load data file, currently from the 
-if (file.exists("./Data/datafile_p02.rds")) {
-    l_da <- readRDS("./Data/datafile_p02.rds")
-} else {
-    #that's the function
-    l_da <- loadData(datadir = getwd(), countfile = "/Data/p02_all.csv", setup="/Data/setup.txt")
-    saveRDS(l_da,"./Data/datafile_p02.rds")
+
+loadDataFile = function(name, originalName, setupName = "setup.txt") {
+  f = conc(dataFolder,name)
+  if(file.exists(f)) return (readRDS(f)) else  {
+    d <- loadData(datadir = dataFolder, countfile = originalName, setup=setupName)
+    saveRDS(d,f)
+    return (d)
+  }
 }
 
+l_da = loadDataFile("datafile_p02.rds","p02_all.csv")
 
 # quality checks and initial analysis
 extractFactors(l_da)
