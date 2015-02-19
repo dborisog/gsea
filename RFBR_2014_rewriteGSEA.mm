@@ -120,11 +120,10 @@
 </node>
 <node CREATED="1423726204774" ID="ID_1370785481" MODIFIED="1424184686779" TEXT="edge width is driven by ">
 <icon BUILTIN="closed"/>
-<node CREATED="1424184689088" ID="ID_1131630673" MODIFIED="1424184698024" TEXT="difficult to understand"/>
+<node CREATED="1424184689088" ID="ID_1131630673" MODIFIED="1424199879777" TEXT="difficult to read the diagram, so no such functionality"/>
 </node>
-<node CREATED="1423726411423" ID="ID_1428285727" MODIFIED="1424186406935" TEXT="add DE genes to the graph">
-<icon BUILTIN="help"/>
-<node CREATED="1424184709095" ID="ID_1370575972" MODIFIED="1424184714644" TEXT="see the table"/>
+<node CREATED="1423726411423" ID="ID_1428285727" MODIFIED="1424199849496" TEXT="add DE genes to the graph">
+<icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1423726084944" ID="ID_1459962194" MODIFIED="1424184747138" TEXT="table of up &amp; down DE genes">
 <icon BUILTIN="closed"/>

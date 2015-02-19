@@ -137,8 +137,8 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
         rownames(df_gene_simpl_count) <- df_gene_simpl_count$GSET
         df_gene_simpl_count$GSET <- NULL
         
+        df_gene_simpl_count <- df_gene_simpl_count[which(rowSums(df_gene_simpl_count)>0),]
         m_gene_simpl_count <- as.matrix(df_gene_simpl_count)
-        m_gene_simpl_count <-m_gene_simpl_count[which(rowSums(m_gene_simpl_count)>0),]
         
         return(m_gene_simpl_count)
         

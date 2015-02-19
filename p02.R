@@ -1,7 +1,7 @@
 ##############
 
-path = "/home/antonkulaga/denigma/gsea/"
-#path = "C:/Users/user/Google Drive/Work/Semantic research framework/RFBR 2014, Aging gene ontology on invertebrates/GSEA/GSEA_vc01/"
+# path = "/home/antonkulaga/denigma/gsea/"
+path <- "C:/Users/user/gitrep/gsea"
 dataFolder = paste(path,"Data/",sep ="")
 flyData = paste(dataFolder,"p02/fly_counts_FBtr",sep ="")
 
@@ -66,20 +66,23 @@ setwd(path)
 write.table(countTable, file = "./Data/p02/p02_all.csv",sep=",",col.names=TRUE,row.names=FALSE)
 
 fbgbtr <- read.table(file="./Data/fbgn_fbtr_fbpp_fb_2014_06.csv", sep="", fill=TRUE)
-
+colnames(fbgbtr) <- c("fbgb","fbtr","fbpp")
+fbgbtr <- fbgbtr[,c(2,1,3)]
 
 #############
 rm(list=ls())
-path = "/home/antonkulaga/denigma/gsea/" #variable for base folder
-#path = "C:/Users/user/Google Drive/Work/Semantic research framework/RFBR 2014, Aging gene ontology on invertebrates/GSEA/GSEA_vc01/"
-dataFolder = paste(path,"Data/",sep ="") #variable for data folder
+# path = "/home/antonkulaga/denigma/gsea/" #variable for base folder
+path <- "C:/Users/user/gitrep/gsea"
+
+
+dataFolder = paste(path,"/Data/",sep ="") #variable for data folder
 
 #vector of packages names
 packages <- c("DESeq","affy","affyPLM","plier","limma",
               "biomaRt","org.Dm.eg.db","org.Hs.eg.db","igraph",
               "marray","AnnotationDbi","gplots","GO.db","KEGG.db",
               "data.table","gProfileR","RColorBrewer","Category","GOstats","Matrix")
-src = paste(path,"Rcode/",sep="")
+src = paste(path,"/Rcode/",sep="")
 
 #function that loads packages 
 #and tries to download those that are not installed
@@ -108,15 +111,9 @@ loadSources = function(){
   source("./Rcode/enrichSets.R")
   source("./Rcode/plotNetwork.R")
   source("./Rcode/plotHeatmap.R")
-  
-  #     source("./R code/runQC.R")
-  #     source("./R code/diffExp.R")
-  source("./Rcode/checkLoadArg.R")
-  source("./Rcode/GSCstatBatch.R")  
 }
 
 
-#setwd("C:/Users/user/gitrep/gsea")
 setwd(path)
 loadPackages(packages,src)
 loadSources()
@@ -171,19 +168,20 @@ rm(plotVenn); source("./Rcode/plotVenn.R")
 
 contrasts = c("temperature_C25_control - temperature_C4_H24","temperature_C25_control - temperature_C0_H24","temperature_C25_control - temperature_C-4_H24")
 dexp <- exprDiff(l_da, contrasts=contrasts)
-plotVenn(data = dexp, transcript2gene = gsets, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
+plotVenn(dexp = dexp, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
 
 contrasts = c("fungus_none_control - fungus_min_H24", "fungus_none_control - fungus_max_H24")
 dexp <- exprDiff(l_da, contrasts=contrasts)
-plotVenn(data = dexp, transcript2gene = gsets, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
+plotVenn(dexp = dexp, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
 
 contrasts = c("radiation_G0_control - radiation_G200_H48","radiation_G0_control - radiation_G500_H48","radiation_G0_control - radiation_G1200_H48")
 dexp <- exprDiff(l_da, contrasts=contrasts)
-plotVenn(data = dexp, transcript2gene = gsets, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
+plotVenn(dexp = dexp, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
 
 contrasts = c("starvation_none_control - starvation_exists_H16")
 dexp <- exprDiff(l_da, contrasts=contrasts)
-plotVenn(data = dexp, transcript2gene = gsets, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
+plotVenn(dexp = dexp, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
+
 
 # enrich sets
 contrasts = c("temperature_C25_control - temperature_C4_H24","temperature_C25_control - temperature_C0_H24","temperature_C25_control - temperature_C-4_H24",
