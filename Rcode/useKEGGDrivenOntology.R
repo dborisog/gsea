@@ -4,7 +4,6 @@ useKEGGDrivenOntology <- function(ad_name) {
     aa <- as.data.frame(KEGGPATHNAME2ID)
     ad_kid <- aa[which(aa$path_name %in% ad_name),]
     ad_kid$path_id <- paste("hsa",ad_kid$path_id,sep="")
-
     
     
     # KEGGPATHID2EXTID    An annotation data object that maps KEGG pathway identifiers to Entrez Gene or Open Reading Frame identifiers
@@ -39,16 +38,26 @@ useKEGGDrivenOntology <- function(ad_name) {
     ## SYMBOL--ENTREZID--KEGGID--KEGGname--FLYBASE
     ad_ofly <- merge(ad_all,ad_sfly,by="SYMBOL")
     
-    cols <- c("FLYBASE") # 
+    
     ## ENSEMBLTRANS--ENTREZID--KEGGID--FLYBASE
+    cols <- c("ENTREZID", "FLYBASE") # 
     tr_orgdm <- mappedkeys(org.Dm.egENSEMBLTRANS2EG)
     anno <- select(org.Dm.eg.db, keys = tr_orgdm, columns = cols, keytype = "ENSEMBLTRANS")
-    anno$FLYBASE <- toupper(anno$FLYBASE)
+        
+    ensembl = useMart("ensembl", dataset="dmelanogaster_gene_ensembl")
+    anno2 <- getBM(attributes=c("flybase_transcript_id", "entrezgene", "flybase_gene_id"), mart=ensembl)
+    
+    colnames(anno2) <- c("ENSEMBLTRANS", "ENTREZID", "FLYBASE")
+    sets <- rbind(anno, anno2)
+    sets <- sets[!duplicated(sets),]
+
+    sets$FLYBASE <- toupper(sets$FLYBASE)
     
     ## FLYBASE--SYMBOL--ENTREZID.x--KEGGID--KEGGname--ENSEMBLTRANS--ENTREZID.y   PATH 
-    ad_end <- merge(ad_ofly,anno,by="FLYBASE")
+    ad_end <- merge(ad_ofly,sets,by="FLYBASE")
     
-    ad_end <- ad_end[,c(7,6,5)]
+    ad_end <- ad_end[,c(7,8,5,6)]
+    ad_end <- ad_end[complete.cases(ad_end),]
     # return table: Fly transcript, Fly gene, Human gene group
     
     return(unique(ad_end))

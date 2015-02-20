@@ -2,7 +2,8 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     
     v_gs_sg_names <- v_contr <- vector() 
     rm(lgfc, v_g_pvalues, m_tr_fc_simpl, v_gs_pvalues, m_gs_pvalues)
-    sets[is.na(sets$FBtranscriptID)==TRUE,1] <- "unknown"; sets[is.na(sets$ENTREZID)==TRUE,2] <- "unknown"; sets[is.na(sets$GSET)==TRUE,3] <- "unknown"
+    sets[is.na(sets[,1])==TRUE,1] <- "missing"; sets[is.na(sets[,2])==TRUE,2] <- "missing"
+    sets[is.na(sets[,3])==TRUE,3] <- "missing"; sets[is.na(sets[,4])==TRUE,4] <- "missing"
     
     #########################
     # calculate significant gene sets
@@ -85,7 +86,7 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     
     
     # df_gs_sgp_simpl -- dataframe__geneset__signigicant_positive__simplified
-    df_gs_sgp_simpl <- setkey(setDT(df_sets_gs_sg_simpl[,3:length(df_sets_gs_sg_simpl)]), GSET)[, lapply(.SD, max), GSET]
+    df_gs_sgp_simpl <- setkey(setDT(df_sets_gs_sg_simpl[,c(3,5:length(df_sets_gs_sg_simpl))]), GSET)[, lapply(.SD, max), GSET]
     df_gs_sgp_simpl <- as.data.frame(df_gs_sgp_simpl)
     #
     df_gs_sgp_simpl[df_gs_sgp_simpl==-1] <- 0
@@ -98,7 +99,7 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     df_gs_sgp_simpl[df_gs_sgp_simpl == 2] <- 1
     #
     # df_gs_sgn_simpl -- dataframe__geneset__signigicant_negative__simplified
-    df_gs_sgn_simpl <- setkey(setDT(df_sets_gs_sg_simpl[,3:length(df_sets_gs_sg_simpl)]), GSET)[, lapply(.SD, min), GSET]
+    df_gs_sgn_simpl <- setkey(setDT(df_sets_gs_sg_simpl[,c(3,5:length(df_sets_gs_sg_simpl))]), GSET)[, lapply(.SD, min), GSET]
     df_gs_sgn_simpl <- as.data.frame(df_gs_sgn_simpl)
     #
     df_gs_sgn_simpl[df_gs_sgn_simpl==1] <- 0
@@ -118,7 +119,7 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     df_sets_gs_simpl$FBtranscriptID <- NULL
     df_sets_gs_simpl_a <- df_sets_gs_simpl_p <- df_sets_gs_simpl_n <- df_sets_gs_simpl
     #
-    for (i in 3:(length(v_contr)+2)) {
+    for (i in 4:(length(v_contr)+3)) {
         df_sets_gs_simpl_a[df_sets_gs_simpl_a[,i] != 0,i] <- 1
         #
         df_sets_gs_simpl_p[df_sets_gs_simpl_p[,i] != 1,i] <- 0
@@ -131,8 +132,8 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     countDEgenes <- function(df_gene_simpl){
         
         df_gene_simpl <- df_gene_simpl[!duplicated(df_gene_simpl),]
-        df_gene_simpl$ENTREZID <- NULL
-        df_gene_simpl_count  <- setkey(setDT(df_gene_simpl), GSET)[, lapply(.SD, sum), GSET];   df_gene_simpl_count <- as.data.frame(df_gene_simpl_count)
+        df_gene_simpl$ENTREZID <- df_gene_simpl$GNAME <- NULL
+        df_gene_simpl_count  <- setkey(setDT(df_gene_simpl), GSET)[, lapply(.SD, sum), GSET]; df_gene_simpl_count <- as.data.frame(df_gene_simpl_count)
         
         rownames(df_gene_simpl_count) <- df_gene_simpl_count$GSET
         df_gene_simpl_count$GSET <- NULL
@@ -146,19 +147,22 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     
     
     listGenes <- function (df_sets_gs_simpl, m_gs_count, sets, v_contr){
-        v_gs_names <- names(as.matrix(m_gs_count)[,1])
-        df_entrList <- data.frame()
         
-        for (i in 1:length(v_contr)){
-            v_col <- c(1,2,(i+2))
+        v_gs_names <- names(as.matrix(m_gs_count)[,1])
+        df_entrList <- data.frame(matrix(NA, nrow = dim(m_gs_count)[1], ncol = (dim(m_gs_count)[2]*2+1)))
+        
+        for (i in 2:(length(v_contr)+1)){
+            v_col <- c(1,2,3,(i+2))
             df_tmpr <- df_sets_gs_simpl[,v_col]
             for (j in 1:length(v_gs_names)) {
-                tmp <- paste(unique(sort(df_tmpr[which(df_tmpr[,3]>0 & df_tmpr[,2]==v_gs_names[j]),1])), collapse=", ")
-                if ( m_gs_count[j,i] != 0) {df_entrList[j,i] <- tmp} else {df_entrList[j,i] <- NA}
+                tmp_entr <- paste(unique(df_tmpr[which(df_tmpr[,4]>0 & df_tmpr[,2]==v_gs_names[j]),1]), collapse=", ")
+                tmp_name <- paste(unique(df_tmpr[which(df_tmpr[,4]>0 & df_tmpr[,2]==v_gs_names[j]),3]), collapse=", ")
+                if ( m_gs_count[j,(i-1)] != 0) {df_entrList[j,i] <- tmp_entr; df_entrList[j,(i+length(v_contr))] <- tmp_name}
             }
         }
         
-        colnames(df_entrList) <- v_contr; rownames(df_entrList) <- v_gs_names
+        colnames(df_entrList) <- c("GSET",paste(v_contr,"entr",sep="_"),paste(v_contr,"name",sep="_")) 
+        rownames(df_entrList) <- v_gs_names
         df_entrList$GSET <- v_gs_names
         return(df_entrList)
     }

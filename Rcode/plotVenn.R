@@ -2,7 +2,6 @@ plotVenn <- function(dexp, contrasts, pvalue=0.05, adj.pvalue=0.1) {
     v_contr <- vector() 
     rm(lgfc, v_g_pvalues, v_g_avalues, m_tr_fc_simpl_pv, m_tr_fc_simpl_av, sets)
     
-    
     trnscrNames <- mappedkeys(org.Dm.egENSEMBLTRANS2EG); cols <- c("ENTREZID")
     anno <- select(org.Dm.eg.db, keys = trnscrNames, columns = cols, keytype = "ENSEMBLTRANS")
     

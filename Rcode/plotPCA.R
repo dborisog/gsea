@@ -14,7 +14,9 @@ plotPCA <- function(arrayData) {
     clr <- 1:length(pc1)
     
     # PCA plot
-    dev.new()
+    
+    png(paste("./Figures/pcaplot.png",sep=""),width=1500,height=1500,res=300,pointsize=8)
+    par(mar=c(10, 4, 4, 2))
     par(mar=c(5,5,4,4))
     plot(cbind(pc1,pc2), 
          pch=15, 
@@ -26,6 +28,5 @@ plotPCA <- function(arrayData) {
          xlim=c(min(pc1)-0.05,max(pc1)+0.05),
          ylim=c(min(pc2)-0.05,max(pc2)+0.05))
     text(cbind(pc1,pc2), labels=names(pc1), pos=4, cex=0.5)
-    
-    
+    dev.off()
 }

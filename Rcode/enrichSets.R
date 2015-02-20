@@ -2,14 +2,16 @@ enrichSets <- function(dexp, pvalues, sets, pcutoff) {
     pvalues[pvalues==0] <- 1e-10
     dt <- data.frame("FBtranscriptID"=dexp$name, "padj"=pvalues)
     dt$FBtranscriptID <- as.character(dt$FBtranscriptID)
-    dt[is.na(dt$padj),2] <- 1; sets[is.na(sets$ENTREZID)==TRUE,2] <- "unknown"; sets[is.na(sets$GSET)==TRUE,3] <- "unknown"
+    dt[is.na(dt$padj),2] <- 1
+    sets[is.na(sets[,1])==TRUE,1] <- "missing"; sets[is.na(sets[,2])==TRUE,2] <- "missing"
+    sets[is.na(sets[,3])==TRUE,3] <- "missing"; sets[is.na(sets[,4])==TRUE,4] <- "missing"
     
     dtd <- merge(dt, sets,by="FBtranscriptID")
 
     
     dtd$strg <- dtd$padj <= pcutoff; dtd$weak <- dtd$padj > pcutoff
-    strg <- dtd[,4:5]; weak <- dtd[,c(4,6)]
-
+    strg <- dtd[,c(4,6)]; weak <- dtd[,c(4,7)]
+    
     strgs <- setkey(setDT(strg), GSET)[, lapply(.SD, sum), GSET] # calculate No of strong genes in each gene set
     weaks <- setkey(setDT(weak), GSET)[, lapply(.SD, sum), GSET] # calculate No of weak genes in each gene set
     

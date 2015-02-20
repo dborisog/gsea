@@ -11,16 +11,17 @@ plotNetwork <- function(dexp, contrast, sets, enrset, pcutoff, type, gsetgroup) 
                      "lgfc"=dexp$lgFC[[contrast]]) 
     dt$FBtranscriptID <- as.character(dt$FBtranscriptID)
     dt[is.na(dt$padj),2] <- 1; dt[is.na(dt$lgfc),3] <- 0 
-    sets[is.na(sets$ENTREZID)==TRUE,2] <- "unknown"; sets[is.na(sets$GSET)==TRUE,3] <- "unknown"
+    
     
     dtd <- merge(dt, sets,by="FBtranscriptID")
     
+        
     if (type=="pval"){
-        lst_n <- dtd[which(dtd$GSET %in% enrset[enrset$pval <= pcutoff,"gset"] & dtd$padj <= pcutoff & dtd$lgfc < 0),c(5,4)]
-        lst_p <- dtd[which(dtd$GSET %in% enrset[enrset$pval <= pcutoff,"gset"] & dtd$padj <= pcutoff & dtd$lgfc > 0),c(5,4)]
+        lst_n <- dtd[which(dtd$GSET %in% enrset[enrset$padj <= pcutoff,"gset"] & dtd$padj <= pcutoff & dtd$lgfc < 0),c(5,6)]
+        lst_p <- dtd[which(dtd$GSET %in% enrset[enrset$padj <= pcutoff,"gset"] & dtd$padj <= pcutoff & dtd$lgfc > 0),c(5,6)]
     } else {
-        lst_n <- dtd[which(dtd$GSET %in% enrset[enrset$padj <= pcutoff,"gset"] & dtd$padj <= pcutoff & dtd$lgfc < 0),c(5,4)]
-        lst_p <- dtd[which(dtd$GSET %in% enrset[enrset$padj <= pcutoff,"gset"] & dtd$padj <= pcutoff & dtd$lgfc > 0),c(5,4)]
+        lst_n <- dtd[which(dtd$GSET %in% enrset[enrset$padj <= pcutoff,"gset"] & dtd$padj <= pcutoff & dtd$lgfc < 0),c(5,6)]
+        lst_p <- dtd[which(dtd$GSET %in% enrset[enrset$padj <= pcutoff,"gset"] & dtd$padj <= pcutoff & dtd$lgfc > 0),c(5,6)]
     }
     
     createGraph <- function(df_data, ch_title) {
@@ -34,6 +35,7 @@ plotNetwork <- function(dexp, contrast, sets, enrset, pcutoff, type, gsetgroup) 
         
         plot(gr, 
              vertex.shape=c(rep("circle",length=length(unique(df_data[,1]))),rep("none",length=length(unique(df_data[,2])))),
+             vertex.label.color=c(rep("black",length=length(unique(df_data[,1]))),rep("red",length=length(unique(df_data[,2])))),
              edge.arrow.size=1,
              vertex.size=v_weight,
              main=ch_title

@@ -154,14 +154,6 @@ dexp <- exprDiff(l_da, contrasts=contrasts)
 
 # load gene set
 # "biological_process" "molecular_function" "cellular_component" "rfbr_orthologs"  "kegg" "aging_diseases" "aging_pathways"
-gsetgroup <- "biological_process"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "molecular_function"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "cellular_component"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "rfbr_orthologs"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "kegg"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "aging_diseases"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "aging_pathways"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-
 
 # vennPlot
 rm(plotVenn); source("./Rcode/plotVenn.R")
@@ -192,25 +184,22 @@ dexp <- exprDiff(l_da, contrasts=contrasts)
 
 
 
-gsetgroup <- "biological_process"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "molecular_function"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "cellular_component"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "rfbr_orthologs"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "kegg"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "aging_diseases"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsetgroup <- "aging_pathways"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-pcut <- 0.1; type="padj"
+gsetgroup <- "biological_process"; gsets <- loadSets(group=gsetgroup)
+gsetgroup <- "molecular_function"; gsets <- loadSets(group=gsetgroup)
+gsetgroup <- "cellular_component"; gsets <- loadSets(group=gsetgroup)
+gsetgroup <- "rfbr_orthologs"; gsets <- loadSets(group=gsetgroup)
+gsetgroup <- "kegg"; gsets <- loadSets(group=gsetgroup)
+gsetgroup <- "aging_diseases"; gsets <- loadSets(group=gsetgroup)
+gsetgroup <- "aging_pathways"; gsets <- loadSets(group=gsetgroup)
 
-
-rm(plotNetwork); source("./Rcode/plotNetwork.R")
-rm(plotHeatmap); source("./Rcode/plotHeatmap.R")
+pcut <- 0.1; type<-"padj"
+pcut <- 0.05; type="pval"
 
 
 for (contrast in contrasts) {
     if (file.exists(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcut,".rds",sep=""))) {
         gsah<- readRDS(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcut,".rds",sep=""))
-    }
-    else {
+    } else {
         gsah <- enrichSets(dexp = dexp, 
                            pvalues = dexp$padj[[contrast]], 
                            sets = gsets, 
@@ -224,22 +213,108 @@ for (contrast in contrasts) {
                     sets = gsets,
                     enrset = gsah, 
                     pcutoff = pcut,
-                    type = "padj", # either "pval" or "padj"
+                    type = type, # either "pval" or "padj"
                     gsetgroup = gsetgroup) 
     }, error=function(e){cat("No network diagram for ", contrast, ", ", gsetgroup,"\n")})
 }
 
+plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
+
+
+contrasts = c("temperature_C25_control - temperature_C4_H24",
+              "temperature_C25_control - temperature_C0_H24",
+              "temperature_C25_control - temperature_C-4_H24",
+              "fungus_none_control - fungus_min_H24",
+              "fungus_none_control - fungus_max_H24",
+              "radiation_G0_control - radiation_G200_H48",
+              "radiation_G0_control - radiation_G500_H48",
+              "radiation_G0_control - radiation_G1200_H48",
+              "starvation_none_control - starvation_exists_H16")
+
+
+# express differences
+dexp <- exprDiff(l_da, contrasts=contrasts)
+
+df_table <- data.frame("FBtr"=dexp$name,
+                       "pval_temperature_C4_H24" = dexp$pval[[1]],
+                       "pval_temperature_C0_H24" = dexp$pval[[2]],
+                       "pval_temperature_C-4_H24" = dexp$pval[[3]],
+                       "pval_fungus_min_H24" = dexp$pval[[4]],
+                       "pval_fungus_max_H24" = dexp$pval[[5]],
+                       "pval_radiation_G200_H48" = dexp$pval[[6]],
+                       "pval_radiation_G500_H48" = dexp$pval[[7]],
+                       "pval_radiation_G1200_H48" = dexp$pval[[8]],
+                       "pval_starvation_exists_H16" = dexp$pval[[9]],
+                       "padj_temperature_C4_H24" = dexp$padj[[1]],
+                       "padj_temperature_C0_H24" = dexp$padj[[2]],
+                       "padj_temperature_C-4_H24" = dexp$padj[[3]],
+                       "padj_fungus_min_H24" = dexp$padj[[4]],
+                       "padj_fungus_max_H24" = dexp$padj[[5]],
+                       "padj_radiation_G200_H48" = dexp$padj[[6]],
+                       "padj_radiation_G500_H48" = dexp$padj[[7]],
+                       "padj_radiation_G1200_H48" = dexp$padj[[8]],
+                       "padj_starvation_exists_H16" = dexp$padj[[9]],
+                       "lgfc_temperature_C4_H24" = dexp$lgFC[[1]],
+                       "lgfc_temperature_C0_H24" = dexp$lgFC[[2]],
+                       "lgfc_temperature_C-4_H24" = dexp$lgFC[[3]],
+                       "lgfc_fungus_min_H24" = dexp$lgFC[[4]],
+                       "lgfc_fungus_max_H24" = dexp$lgFC[[5]],
+                       "lgfc_radiation_G200_H48" = dexp$lgFC[[6]],
+                       "lgfc_radiation_G500_H48" = dexp$lgFC[[7]],
+                       "lgfc_radiation_G1200_H48" = dexp$lgFC[[8]],
+                       "lgfc_starvation_exists_H16" = dexp$lgFC[[9]]
+                       )
+df_table$FBtr <- as.character(df_table$FBtr)
+
+v_rname <- pv <- av <- vector()
+for(i in 1:dim(dexp$pval)[2]) {
+    df_table[is.na(df_table[,(1+i)]),(1+i)] <- 1
+    df_table[is.na(df_table[,(11+i)]),(11+i)] <- 1
+    df_table[is.na(df_table[,(19+i)]),(19+i)] <- 0
+    
+#     pv <- df_table[which(df_table[,(1+i)] <=0.5 & df_table[,(19+i)] != 0),1]
+#     av <- df_table[which(df_table[,(11+i)]<=0.1 & df_table[,(19+i)] != 0),1]
+#     v_rname <- c(v_rname,pv,av)
+}
+
+trnscrNames <- mappedkeys(org.Dm.egENSEMBLTRANS2EG)
+cols <- c("ENTREZID", "SYMBOL")
+anno1 <- select(org.Dm.eg.db, keys = trnscrNames, columns = cols, keytype = "ENSEMBLTRANS")
+
+ensembl = useMart("ensembl", dataset="dmelanogaster_gene_ensembl")
+anno2 <- getBM(attributes=c("flybase_transcript_id", "entrezgene", "flybasename_gene"), mart=ensembl)
+
+length(anno1[is.na(anno1[,1]),1]); length(anno1[is.na(anno1[,2]),2]); length(anno1[is.na(anno1[,3]),3])
+length(anno2[is.na(anno2[,1]),1]); length(anno2[is.na(anno2[,2]),2]); length(anno2[is.na(anno2[,3]),3])
+length(anno[is.na(anno[,1]),1]); length(anno[is.na(anno[,2]),2]); length(anno[is.na(anno[,3]),3])
+
+length(anno1[,1]); length(anno2[,1]); length(anno[,1])
+
+anno <- merge(anno1,anno2,by.x="FBtr",by.y="FBtr")
+
+length(anno[is.na(anno[,1]),1]); length(anno[is.na(anno[,2]),2]); length(anno[is.na(anno[,3]),3]); length(anno[is.na(anno[,4]),4]); length(anno[is.na(anno[,5]),5])
 
 
 
-plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = "padj", pcutoff = pcut)
+
+df_table2 <- merge(anno2,df_table,by="FBtr")
+write.table(df_table2,file=paste("./Figures/datatable.csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
 
 
 
 
-gsetgroup <- "molecular_function"; gsets <- loadSets(dexp=dexp, group=gsetgroup)
-gsah<- readRDS(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcut,".rds",sep=""))
-dexp = dexp; contrast = contrast; sets = gsets; enrset = gsah; pcutoff = pcut; type = "padj"; gsetgroup = gsetgroup
+colnames(anno1) <- colnames(anno2) <- c("FBtr", "ENTREZID", "GNAME")
+anno <- rbind(anno1, anno2)
+anno <- anno[!duplicated(anno),]
+
+
+
+
+
+
+
+
+
 
 
 
