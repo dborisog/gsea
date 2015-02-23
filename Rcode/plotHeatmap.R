@@ -192,53 +192,44 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     # draw heatmaps
     if (length(m_gs_sga_simpl)>0) {
         png(paste("./Figures/heatmap_",gsetgroup,"_sg_all_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gs_sga_simpl)[1]+1800),res=300,pointsize=8)
-        heatmap.2(m_gs_sga_simpl, col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("All significant gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5) 
+        heatmap.2(m_gs_sga_simpl[!(rownames(m_gs_sga_simpl) %in% "missing"),], col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("All significant gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5) 
         dev.off()
         write.table(df_entrList_sa,file=paste("./Figures/heatmap_",gsetgroup,"_sg_all_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
     }
     if (length(m_gs_sgp_simpl)>0) {
         png(paste("./Figures/heatmap_",gsetgroup,"_sg_pos_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gs_sgp_simpl)[1]+1800),res=300,pointsize=8)
-        heatmap.2(m_gs_sgp_simpl, col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Up-regulated significant gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5) 
+        heatmap.2(m_gs_sgp_simpl[!(rownames(m_gs_sgp_simpl) %in% "missing"),], col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Up-regulated significant gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5) 
         dev.off()
         write.table(df_entrList_sp,file=paste("./Figures/heatmap_",gsetgroup,"_sg_pos_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
     }
     if (length(m_gs_sgn_simpl)>0) {
         png(paste("./Figures/heatmap_",gsetgroup,"_sg_neg_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gs_sgn_simpl)[1]+1800),res=300,pointsize=8)
-        heatmap.2(m_gs_sgn_simpl, col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(18,9), Key=TRUE, keysize=1, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Down-regulated significant gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5) 
+        heatmap.2(m_gs_sgn_simpl[!(rownames(m_gs_sgn_simpl) %in% "missing"),], col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(18,9), Key=TRUE, keysize=1, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Down-regulated significant gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5) 
         dev.off()
         write.table(df_entrList_sn,file=paste("./Figures/heatmap_",gsetgroup,"_sg_neg_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
     }
             
     if (length(m_gset_gn_counta)>0) {
         png(paste("./Figures/heatmap_",gsetgroup,"_de_all_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_counta)[1]+1800),res=300,pointsize=8)
-        heatmap.2(m_gset_gn_counta,col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=1, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("All DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
+        heatmap.2(m_gset_gn_counta[!(rownames(m_gset_gn_counta) %in% "missing"),],col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=1, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("All DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
         dev.off()
         write.table(df_entrList_dea,file=paste("./Figures/heatmap_",gsetgroup,"_de_all_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
     }
     if (length(m_gset_gn_countp)>0) {
         png(paste("./Figures/heatmap_",gsetgroup,"_de_pos_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_countp)[1]+1800),res=300,pointsize=8)
-        heatmap.2(m_gset_gn_countp,col=colorRampPalette(brewer.pal(9,"GnBu"))(100), ,lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Up-regulated DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
+        heatmap.2(m_gset_gn_countp[!(rownames(m_gset_gn_countp) %in% "missing"),],col=colorRampPalette(brewer.pal(9,"GnBu"))(100), ,lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Up-regulated DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
         dev.off()
         write.table(df_entrList_dep,file=paste("./Figures/heatmap_",gsetgroup,"_de_pos_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
     }
     if (length(m_gset_gn_countn)>0) {
         png(paste("./Figures/heatmap_",gsetgroup,"_de_neg_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_countn)[1]+1800),res=300,pointsize=8)
-        heatmap.2(m_gset_gn_countn,col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Down-regulated DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
+        heatmap.2(m_gset_gn_countn[!(rownames(m_gset_gn_countn) %in% "missing"),],col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Down-regulated DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
         dev.off()
         write.table(df_entrList_den,file=paste("./Figures/heatmap_",gsetgroup,"_de_neg_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
     }
 
 #     
 }
-
-
-
-
-
-
-
-
-
 
 
 

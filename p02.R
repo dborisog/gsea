@@ -221,6 +221,22 @@ for (contrast in contrasts) {
 plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
 
 
+pcut <- 0.1; type<-"padj"
+gsetgroup <- "biological_process"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
+gsetgroup <- "molecular_function"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
+gsetgroup <- "cellular_component"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
+gsetgroup <- "kegg"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
+
+pcut <- 0.05; type="pval"
+gsetgroup <- "biological_process"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
+gsetgroup <- "molecular_function"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
+gsetgroup <- "cellular_component"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
+gsetgroup <- "kegg"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
+
+
+
+
+
 contrasts = c("temperature_C25_control - temperature_C4_H24",
               "temperature_C25_control - temperature_C0_H24",
               "temperature_C25_control - temperature_C-4_H24",
