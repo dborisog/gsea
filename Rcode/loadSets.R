@@ -23,8 +23,8 @@ loadSets <- function(group) {
 
             # KEGGPATHID2NAME  An annotation data object that maps KEGG pathway identifiers to KEGG pathway names
             yy <- as.data.frame(KEGGPATHID2NAME)
-            dm_keggname <- yy[which(yy$path_id %in% eid[,3]),]
-            dmT_kegg <- merge(anno,dm_keggname, by.x="PATH", by.y="path_id", all.x=TRUE)
+#             dm_keggname <- yy[which(yy$path_id %in% anno[,3]),]
+            dmT_kegg <- merge(anno,yy, by.x="PATH", by.y="path_id", all.x=TRUE)
             dmT_kegg$path_name[is.na(dmT_kegg$path_name)] <- "missing"
 
             dm_kegg <- dmT_kegg[,c(2,3,5,4)]
