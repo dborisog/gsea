@@ -1,4 +1,4 @@
-plotNetwork <- function(dexp, contrast, gsets, enrsets, pcutoff, type, gsetgroup, shownodes) {
+plotManualNetwork <- function(dexp, contrast, gsets, enrsets, pcutoff, type, gsetgroup, shownodes) {
     # shownodes are either "all" sets and genes or "sets"
     # shownodes="all"
     
@@ -17,7 +17,7 @@ plotNetwork <- function(dexp, contrast, gsets, enrsets, pcutoff, type, gsetgroup
     
     dtd <- merge(dt, gsets,by="FBtranscriptID")
     
-        
+    
     if (type=="pval"){
         lst_n <- dtd[which(dtd$GSET %in% enrsets[enrsets$padj <= pcutoff,"gset"] & dtd$padj <= pcutoff & dtd$lgfc < 0),c(5,6)]
         lst_p <- dtd[which(dtd$GSET %in% enrsets[enrsets$padj <= pcutoff,"gset"] & dtd$padj <= pcutoff & dtd$lgfc > 0),c(5,6)]
@@ -35,37 +35,37 @@ plotNetwork <- function(dexp, contrast, gsets, enrsets, pcutoff, type, gsetgroup
             }
             v_weight <- v_weight + 10
             v_weight <- c(v_weight,rep(1,length=length(unique(df_data[,2]))))
+            V(gr)$shape <- c(rep("circle",length=length(unique(df_data[,1]))),rep("none",length=length(unique(df_data[,2]))))
+            V(gr)$size <- v_weight
+            V(gr)$label.color <- c(rep("black",length=length(unique(df_data[,1]))),rep("red",length=length(unique(df_data[,2]))))
             
-            plot(gr, 
-                 vertex.shape=c(rep("circle",length=length(unique(df_data[,1]))),rep("none",length=length(unique(df_data[,2])))),
-                 vertex.label.color=c(rep("black",length=length(unique(df_data[,1]))),rep("red",length=length(unique(df_data[,2])))),
-                 edge.arrow.size=1,
-                 vertex.size=v_weight,
-                 main=ch_title
-                )
+            
+            id <- tkplot(gr, canvas.width=1000, canvas.height=1000)
+            canvas <- tkplot.canvas(id)
+            width <- as.numeric(tkcget(canvas, "-width"))
+            height <- as.numeric(tkcget(canvas, "-height"))
+            tkcreate(canvas, "text", width/2, 25, text=ch_title,justify="center", font=tkfont.create(family="helvetica",size=20,weight="bold"))
         } else {
             mlst <- merge(df_data,df_data,by="GNAME"); mlst <- mlst[,2:3]
             am <- get.adjacency(graph.edgelist(as.matrix(mlst)))
             gr <- simplify(graph.adjacency(am, mode="upper"),remove.multiple=TRUE)
-            plot(gr,
-                 vertex.label.color=rep("black",length=length(unique(df_data[,1]))),
-                 vertex.size=rep(7,length=length(unique(df_data[,1]))),
-                 main=ch_title)
+            
+            id <- tkplot(gr, canvas.width=1000, canvas.height=1000)
+            canvas <- tkplot.canvas(id)
+            width <- as.numeric(tkcget(canvas, "-width"))
+            height <- as.numeric(tkcget(canvas, "-height"))
+            tkcreate(canvas, "text", width/2, 25, text=ch_title,justify="center", font=tkfont.create(family="helvetica",size=20,weight="bold"))
         }
     }
     
-
+    
     if (length(lst_p[,1])>0) {
-        png(paste("./Figures/network_",gsetgroup,"_",contrast,"_up_",type,"_",pcutoff,".png",sep=""),width=1500,height=1500,res=300,pointsize=8)
         createGraph(df_data=lst_p, ch_title=paste(contrast, "up-regulated", sep=", "),shownodes=shownodes)
-        dev.off()
     }
     
     
     if (length(lst_n[,1])>0) {
-        png(paste("./Figures/network_",gsetgroup,"_",contrast,"_down_",type,"_",pcutoff,".png",sep=""),width=1500,height=1500,res=300,pointsize=8)
         createGraph(df_data=lst_n, ch_title=paste(contrast, "down-regulated", sep=", "),shownodes=shownodes)
-        dev.off()
     }
     
 }

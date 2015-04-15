@@ -1,6 +1,48 @@
+# cf1 <- read.table(file="./Data/Cf.merged.1.counts", sep="")
+# cf2 <- read.table(file="./Data/Cf.merged.2.counts", sep="")
+# cm1 <- read.table(file="./Data/Cm.merged.1.counts", sep="")
+# cm2 <- read.table(file="./Data/Cm.merged.2.counts", sep="")
+# df1 <- read.table(file="./Data/Df.merged.1.counts", sep="")
+# df2 <- read.table(file="./Data/Df.merged.2.counts", sep="")
+# dm1 <- read.table(file="./Data/Dm.merged.1.counts", sep="")
+# dm2 <- read.table(file="./Data/Dm.merged.2.counts", sep="")
+# ff1 <- read.table(file="./Data/Ff.merged.1.counts", sep="")
+# ff2 <- read.table(file="./Data/Ff.merged.2.counts", sep="")
+# fm1 <- read.table(file="./Data/Fm.merged.1.counts", sep="")
+# fm2 <- read.table(file="./Data/Fm.merged.2.counts", sep="")
+# rf1 <- read.table(file="./Data/Rf.merged.1.counts", sep="")
+# rf2 <- read.table(file="./Data/Rf.merged.2.counts", sep="")
+# rm1 <- read.table(file="./Data/Rm.merged.1.counts", sep="")
+# rm2 <- read.table(file="./Data/Rm.merged.2.counts", sep="")
+# tf1 <- read.table(file="./Data/Tf.ferged.1.counts", sep="")
+# tf2 <- read.table(file="./Data/Tf.ferged.2.counts", sep="")
+# tm1 <- read.table(file="./Data/Tm.merged.1.counts", sep="")
+# tm2 <- read.table(file="./Data/Tm.merged.2.counts", sep="")
+# 
+# countTable <- data.frame("TRANSCRIPTS"=ff1[,1],
+#                          "cf1"=cf1[,2],
+#                          "cf2"=cf2[,2],
+#                          "cm1"=cm1[,2],
+#                          "cm2"=cm2[,2],
+#                          "df1"=df1[,2],
+#                          "df2"=df2[,2],
+#                          "dm1"=dm1[,2],
+#                          "dm2"=dm2[,2],
+#                          "ff1"=ff1[,2],
+#                          "ff2"=ff2[,2],
+#                          "fm1"=fm1[,2],
+#                          "fm2"=fm2[,2],
+#                          "rf1"=rf1[,2],
+#                          "rf2"=rf2[,2],
+#                          "rm1"=rm1[,2],
+#                          "rm2"=rm2[,2],
+#                          "tf1"=tf1[,2],
+#                          "tf2"=tf2[,2],
+#                          "tm1"=tm1[,2],
+#                          "tm2"=tm2[,2])
+# write.table(countTable, file = "./Data/p03_01_data.csv",sep=",",col.names=TRUE,row.names=FALSE)
 
-
-# p0301 <- read.table(file="./Data/p03_01_data.csv",sep="",header=TRUE,fill=TRUE)
+# p0301 <- read.table(file="./Data/p03_01_data.csv",sep=",",header=TRUE,fill=TRUE)
 # p0302 <- read.table(file="./Data/p03_02_data.csv",sep=",",header=TRUE,fill=TRUE)
 # p0301[,1] <- as.character(p0301[,1]); p0302[,1] <- as.character(p0302[,1])
 # p03 <- merge(p0301,p0302,by="TRANSCRIPTS")
@@ -49,6 +91,7 @@ loadSources = function(){
     source("./Rcode/plotVenn.R")
     source("./Rcode/enrichSets.R")
     source("./Rcode/plotNetwork.R")
+    source("./Rcode/plotManualNetwork.R")
     source("./Rcode/plotHeatmap.R")
 }
 
@@ -60,8 +103,8 @@ conc = function(one,two) {paste(one,two,sep="")} #shorcut function for concatena
 
 #############
 
-# l_da <- loadData(datadir = dataFolder, countfile = "p03_data.csv", setup="setup.txt")
-# saveRDS(l_da,"./Data/datafile_p03.rds")
+l_da <- loadData(datadir = dataFolder, countfile = "p03_data.csv", setup="setup.txt")
+saveRDS(l_da,"./Data/datafile_p03.rds")
 
 loadDataFile = function(name, originalName, setupName = "setup.txt") {
     f = conc(dataFolder,name)
@@ -80,28 +123,27 @@ plotPCA(l_da)
 plotBox(l_da)
 plotHist(l_da)
 
-contrasts = c("Control_m - Irradiation_m", 
-              "Control_m - toluene_m",
-              "Control_m - Dioxin_m",
-              "Control_m - formaldehyde_m",
-              "temperature_C25_control - temperature_C4_H24",
-              "temperature_C25_control - temperature_C0_H24",
-              "temperature_C25_control - temperature_C-4_H24",
-              "fungus_none_control - fungus_min_H24",
-              "fungus_none_control - fungus_max_H24",
-              "radiation_G0_control - radiation_G200_H48",
-              "radiation_G0_control - radiation_G500_H48",
-              "radiation_G0_control - radiation_G1200_H48",
-              "starvation_none_control - starvation_exists_H16")
 
 # express differences
+contrasts = c("control_f - dioxin_f", "control_f - formaldehyde_f", "control_f - radiation_f", "control_f - toluene_f",
+              "control_m - dioxin_m", "control_m - formaldehyde_m", "control_m - radiation_m", "control_m - toluene_m",
+              "temperature_C25_control - temperature_C4_H24", "temperature_C25_control - temperature_C0_H24", "temperature_C25_control - temperature_C-4_H24",
+              "fungus_none_control - fungus_min_H24", "fungus_none_control - fungus_max_H24",
+              "radiation_G0_control - radiation_G200_H48", "radiation_G0_control - radiation_G500_H48", "radiation_G0_control - radiation_G1200_H48",
+              "starvation_none_control - starvation_exists_H16")
 dexp <- exprDiff(l_da, contrasts=contrasts)
 
 # load gene set
 # "biological_process" "molecular_function" "cellular_component" "rfbr_orthologs"  "kegg" "aging_diseases" "aging_pathways"
 
 # vennPlot
-rm(plotVenn); source("./Rcode/plotVenn.R")
+contrasts = c"control_f - dioxin_f", "control_f - formaldehyde_f", "control_f - radiation_f", "control_f - toluene_f")
+dexp <- exprDiff(l_da, contrasts=contrasts)
+plotVenn(dexp = dexp, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
+
+contrasts = c("control_m - dioxin_m", "control_m - formaldehyde_m", "control_m - radiation_m", "control_m - toluene_m")
+dexp <- exprDiff(l_da, contrasts=contrasts)
+plotVenn(dexp = dexp, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
 
 contrasts = c("temperature_C25_control - temperature_C4_H24","temperature_C25_control - temperature_C0_H24","temperature_C25_control - temperature_C-4_H24")
 dexp <- exprDiff(l_da, contrasts=contrasts)
@@ -111,7 +153,7 @@ contrasts = c("fungus_none_control - fungus_min_H24", "fungus_none_control - fun
 dexp <- exprDiff(l_da, contrasts=contrasts)
 plotVenn(dexp = dexp, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
 
-contrasts = c("Control_m - Irradiation_m", "radiation_G0_control - radiation_G200_H48","radiation_G0_control - radiation_G500_H48","radiation_G0_control - radiation_G1200_H48")
+contrasts = c("control_m - radiation_m", "radiation_G0_control - radiation_G200_H48","radiation_G0_control - radiation_G500_H48","radiation_G0_control - radiation_G1200_H48")
 dexp <- exprDiff(l_da, contrasts=contrasts)
 plotVenn(dexp = dexp, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
 
@@ -121,9 +163,12 @@ plotVenn(dexp = dexp, contrasts = contrasts, pvalue=0.05, adj.pvalue=0.1)
 
 
 # enrich sets
-contrasts = c("temperature_C25_control - temperature_C4_H24","temperature_C25_control - temperature_C0_H24","temperature_C25_control - temperature_C-4_H24",
-              "fungus_none_control - fungus_min_H24","fungus_none_control - fungus_max_H24",
-              "radiation_G0_control - radiation_G200_H48","radiation_G0_control - radiation_G500_H48","radiation_G0_control - radiation_G1200_H48",
+# express differences
+contrasts = c("control_f - dioxin_f", "control_f - formaldehyde_f", "control_f - radiation_f", "control_f - toluene_f",
+              "control_m - dioxin_m", "control_m - formaldehyde_m", "control_m - radiation_m", "control_m - toluene_m",
+              "temperature_C25_control - temperature_C4_H24", "temperature_C25_control - temperature_C0_H24", "temperature_C25_control - temperature_C-4_H24",
+              "fungus_none_control - fungus_min_H24", "fungus_none_control - fungus_max_H24",
+              "radiation_G0_control - radiation_G200_H48", "radiation_G0_control - radiation_G500_H48", "radiation_G0_control - radiation_G1200_H48",
               "starvation_none_control - starvation_exists_H16")
 dexp <- exprDiff(l_da, contrasts=contrasts)
 
@@ -132,102 +177,212 @@ dexp <- exprDiff(l_da, contrasts=contrasts)
 gsetgroup <- "biological_process"; gsets <- loadSets(group=gsetgroup)
 gsetgroup <- "molecular_function"; gsets <- loadSets(group=gsetgroup)
 gsetgroup <- "cellular_component"; gsets <- loadSets(group=gsetgroup)
-gsetgroup <- "rfbr_orthologs"; gsets <- loadSets(group=gsetgroup)
+gsetgroup <- "rfbr_orthologs"; gsets <- loadSets(group=gsetgroup); gsets <- gsets[gsets[,3]!="missing",]
 gsetgroup <- "kegg"; gsets <- loadSets(group=gsetgroup)
 gsetgroup <- "aging_diseases"; gsets <- loadSets(group=gsetgroup)
 gsetgroup <- "aging_pathways"; gsets <- loadSets(group=gsetgroup)
 
-pcut <- 0.1; type<-"padj"
-pcut <- 0.05; type="pval"
 
+pcutoff <- 0.1; type<-"padj"; shownodes="all"
+pcutoff <- 0.05; type<-"pval"; shownodes="all"
+
+source("./Rcode/plotManualNetwork.R")
+plotManualNetwork(dexp = dexp, contrast = contrast, gsets = gsets, enrsets = enrsets, pcutoff = pcutoff, type = type, gsetgroup = gsetgroup, shownodes=shownodes)
+
+# contrast <- "control_f - toluene_f"
+# contrast <- "radiation_G0_control - radiation_G1200_H48"
+
+gsetgroups <- c("biological_process", "molecular_function", "cellular_component", "rfbr_orthologs", "kegg", "aging_diseases", "aging_pathways")
+multiEnrichSets <- function(gsetgroups) {
+    for (gsetgroup in gsetgroups) {
+        gsets <- loadSets(group=gsetgroup)
+        
+        for (contrast in contrasts) {
+            if (file.exists(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcutoff,".rds",sep=""))) {
+                enrsets<- readRDS(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcutoff,".rds",sep=""))
+            } else {
+                enrsets <- enrichSets(dexp = dexp, 
+                                   pvalues = dexp$padj[[contrast]], 
+                                   gsets = gsets, 
+                                   pcutoff = pcutoff)
+                saveRDS(enrsets,paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcutoff,".rds",sep=""))
+            }
+            print(contrast)
+            tryCatch ({
+                plotNetwork(dexp = dexp, 
+                            contrast = contrast,
+                            gsets = gsets,
+                            enrsets = enrsets, 
+                            pcutoff = pcutoff,
+                            type = type, # either "pval" or "padj"
+                            gsetgroup = gsetgroup,
+                            shownodes=shownodes) 
+            }, error=function(e){cat("No network diagram for ", contrast, ", ", gsetgroup,"\n")})
+        }
+        
+    }
+}
+
+multiEnrichSets(gsetgroups)
 
 for (contrast in contrasts) {
-    if (file.exists(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcut,".rds",sep=""))) {
-        gsah<- readRDS(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcut,".rds",sep=""))
+    if (file.exists(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcutoff,".rds",sep=""))) {
+        enrsets<- readRDS(paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcutoff,".rds",sep=""))
     } else {
-        gsah <- enrichSets(dexp = dexp, 
+        enrsets <- enrichSets(dexp = dexp, 
                            pvalues = dexp$padj[[contrast]], 
-                           sets = gsets, 
-                           pcutoff = pcut)
-        saveRDS(gsah,paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcut,".rds",sep=""))
+                           gsets = gsets, 
+                           pcutoff = pcutoff)
+        saveRDS(enrsets,paste("./Data/GSA_hyper_",contrast,"_",gsetgroup,"_",pcutoff,".rds",sep=""))
     }
     print(contrast)
     tryCatch ({
         plotNetwork(dexp = dexp, 
                     contrast = contrast,
-                    sets = gsets,
-                    enrset = gsah, 
-                    pcutoff = pcut,
+                    gsets = gsets,
+                    enrsets = enrsets, 
+                    pcutoff = pcutoff,
                     type = type, # either "pval" or "padj"
-                    gsetgroup = gsetgroup) 
+                    gsetgroup = gsetgroup,
+                    shownodes="all") 
     }, error=function(e){cat("No network diagram for ", contrast, ", ", gsetgroup,"\n")})
 }
 
 
+contrasts = c("control_f - dioxin_f", "control_f - formaldehyde_f", "control_f - radiation_f", "control_f - toluene_f",
+              "control_m - dioxin_m", "control_m - formaldehyde_m", "control_m - radiation_m", "control_m - toluene_m")
+dexp <- exprDiff(l_da, contrasts=contrasts)
+pcutoff <- 0.1; type<-"padj"; shownodes="all"
+gsetgroup <- "biological_process"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "molecular_function"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "cellular_component"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "kegg"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
 
-plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
+pcutoff <- 0.05; type="pval"; shownodes="all"
+gsetgroup <- "biological_process"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "molecular_function"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "cellular_component"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "kegg"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
 
-
-pcut <- 0.1; type<-"padj"
-gsetgroup <- "biological_process"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
-gsetgroup <- "molecular_function"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
-gsetgroup <- "cellular_component"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
-gsetgroup <- "kegg"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
-
-pcut <- 0.05; type="pval"
-gsetgroup <- "biological_process"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
-gsetgroup <- "molecular_function"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
-gsetgroup <- "cellular_component"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
-gsetgroup <- "kegg"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, sets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcut)
-
-
-
-
-
-contrasts = c("temperature_C25_control - temperature_C4_H24",
-              "temperature_C25_control - temperature_C0_H24",
-              "temperature_C25_control - temperature_C-4_H24",
-              "fungus_none_control - fungus_min_H24",
-              "fungus_none_control - fungus_max_H24",
-              "radiation_G0_control - radiation_G200_H48",
-              "radiation_G0_control - radiation_G500_H48",
-              "radiation_G0_control - radiation_G1200_H48",
+contrasts = c("temperature_C25_control - temperature_C4_H24", "temperature_C25_control - temperature_C0_H24", "temperature_C25_control - temperature_C-4_H24",
+              "fungus_none_control - fungus_min_H24", "fungus_none_control - fungus_max_H24",
+              "radiation_G0_control - radiation_G200_H48", "radiation_G0_control - radiation_G500_H48", "radiation_G0_control - radiation_G1200_H48",
               "starvation_none_control - starvation_exists_H16")
+dexp <- exprDiff(l_da, contrasts=contrasts)
 
+pcutoff <- 0.1; type<-"padj"
+gsetgroup <- "biological_process"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "molecular_function"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "cellular_component"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "kegg"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+
+pcutoff <- 0.05; type="pval"
+gsetgroup <- "biological_process"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "molecular_function"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "cellular_component"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "kegg"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+
+
+
+
+contrasts = c("control_m - dioxin_m", "control_m - formaldehyde_m", "control_m - radiation_m", "control_m - toluene_m",
+              "temperature_C25_control - temperature_C4_H24", "temperature_C25_control - temperature_C0_H24", "temperature_C25_control - temperature_C-4_H24",
+              "fungus_none_control - fungus_min_H24", "fungus_none_control - fungus_max_H24",
+              "radiation_G0_control - radiation_G200_H48", "radiation_G0_control - radiation_G500_H48", "radiation_G0_control - radiation_G1200_H48",
+              "starvation_none_control - starvation_exists_H16")
+dexp <- exprDiff(l_da, contrasts=contrasts)
+
+pcutoff <- 0.1; type<-"padj"
+gsetgroup <- "biological_process"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "molecular_function"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "cellular_component"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "kegg"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+
+pcutoff <- 0.05; type="pval"
+gsetgroup <- "biological_process"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "molecular_function"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "cellular_component"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "kegg"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+
+
+
+
+
+
+
+
+gsetgroup <- "rfbr_orthologs"; gsets <- loadSets(group=gsetgroup); gsets <- gsets[gsets[,3]!="missing",]; plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "aging_diseases"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+gsetgroup <- "aging_pathways"; gsets <- loadSets(group=gsetgroup); plotHeatmap(dexp = dexp, contrasts = contrasts, gsets = gsets, gsetgroup = gsetgroup, type = type, pcutoff = pcutoff)
+
+
+
+
+contrasts = c("control_f - dioxin_f", "control_f - formaldehyde_f", "control_f - radiation_f", "control_f - toluene_f",
+              "control_m - dioxin_m", "control_m - formaldehyde_m", "control_m - radiation_m", "control_m - toluene_m",
+              "temperature_C25_control - temperature_C4_H24", "temperature_C25_control - temperature_C0_H24", "temperature_C25_control - temperature_C-4_H24",
+              "fungus_none_control - fungus_min_H24", "fungus_none_control - fungus_max_H24",
+              "radiation_G0_control - radiation_G200_H48", "radiation_G0_control - radiation_G500_H48", "radiation_G0_control - radiation_G1200_H48",
+              "starvation_none_control - starvation_exists_H16")
 
 # express differences
 dexp <- exprDiff(l_da, contrasts=contrasts)
 
 df_table <- data.frame("FBtr"=dexp$name,
-                       "pval_temperature_C4_H24" = dexp$pval[[1]],
-                       "pval_temperature_C0_H24" = dexp$pval[[2]],
-                       "pval_temperature_C-4_H24" = dexp$pval[[3]],
-                       "pval_fungus_min_H24" = dexp$pval[[4]],
-                       "pval_fungus_max_H24" = dexp$pval[[5]],
-                       "pval_radiation_G200_H48" = dexp$pval[[6]],
-                       "pval_radiation_G500_H48" = dexp$pval[[7]],
-                       "pval_radiation_G1200_H48" = dexp$pval[[8]],
-                       "pval_starvation_exists_H16" = dexp$pval[[9]],
-                       "padj_temperature_C4_H24" = dexp$padj[[1]],
-                       "padj_temperature_C0_H24" = dexp$padj[[2]],
-                       "padj_temperature_C-4_H24" = dexp$padj[[3]],
-                       "padj_fungus_min_H24" = dexp$padj[[4]],
-                       "padj_fungus_max_H24" = dexp$padj[[5]],
-                       "padj_radiation_G200_H48" = dexp$padj[[6]],
-                       "padj_radiation_G500_H48" = dexp$padj[[7]],
-                       "padj_radiation_G1200_H48" = dexp$padj[[8]],
-                       "padj_starvation_exists_H16" = dexp$padj[[9]],
-                       "lgfc_temperature_C4_H24" = dexp$lgFC[[1]],
-                       "lgfc_temperature_C0_H24" = dexp$lgFC[[2]],
-                       "lgfc_temperature_C-4_H24" = dexp$lgFC[[3]],
-                       "lgfc_fungus_min_H24" = dexp$lgFC[[4]],
-                       "lgfc_fungus_max_H24" = dexp$lgFC[[5]],
-                       "lgfc_radiation_G200_H48" = dexp$lgFC[[6]],
-                       "lgfc_radiation_G500_H48" = dexp$lgFC[[7]],
-                       "lgfc_radiation_G1200_H48" = dexp$lgFC[[8]],
-                       "lgfc_starvation_exists_H16" = dexp$lgFC[[9]]
+                       "pval_dioxin_f" = dexp$pval[[1]],
+                       "pval_formaldehyde_f" = dexp$pval[[2]],
+                       "pval_radiation_f" = dexp$pval[[3]],
+                       "pval_toluene_f" = dexp$pval[[4]],
+                       "pval_dioxin_m" = dexp$pval[[5]],
+                       "pval_formaldehyde_m" = dexp$pval[[6]],
+                       "pval_radiation_m" = dexp$pval[[7]],
+                       "pval_toluene_m" = dexp$pval[[8]],
+                       "pval_temperature_C4_H24" = dexp$pval[[9]],
+                       "pval_temperature_C0_H24" = dexp$pval[[10]],
+                       "pval_temperature_C-4_H24" = dexp$pval[[11]],
+                       "pval_fungus_min_H24" = dexp$pval[[12]],
+                       "pval_fungus_max_H24" = dexp$pval[[13]],
+                       "pval_radiation_G200_H48" = dexp$pval[[14]],
+                       "pval_radiation_G500_H48" = dexp$pval[[15]],
+                       "pval_radiation_G1200_H48" = dexp$pval[[16]],
+                       "pval_starvation_exists_H16" = dexp$pval[[17]],
+                       "padj_dioxin_f" = dexp$padj[[1]],
+                       "padj_formaldehyde_f" = dexp$padj[[2]],
+                       "padj_radiation_f" = dexp$padj[[3]],
+                       "padj_toluene_f" = dexp$padj[[4]],
+                       "padj_dioxin_m" = dexp$padj[[5]],
+                       "padj_formaldehyde_m" = dexp$padj[[6]],
+                       "padj_radiation_m" = dexp$padj[[7]],
+                       "padj_toluene_m" = dexp$padj[[8]],
+                       "padj_temperature_C4_H24" = dexp$padj[[9]],
+                       "padj_temperature_C0_H24" = dexp$padj[[10]],
+                       "padj_temperature_C-4_H24" = dexp$padj[[11]],
+                       "padj_fungus_min_H24" = dexp$padj[[12]],
+                       "padj_fungus_max_H24" = dexp$padj[[13]],
+                       "padj_radiation_G200_H48" = dexp$padj[[14]],
+                       "padj_radiation_G500_H48" = dexp$padj[[15]],
+                       "padj_radiation_G1200_H48" = dexp$padj[[16]],
+                       "padj_starvation_exists_H16" = dexp$padj[[17]],
+                       "lgfc_dioxin_f" = dexp$lgFC[[1]],
+                       "lgfc_formaldehyde_f" = dexp$lgFC[[2]],
+                       "lgfc_radiation_f" = dexp$lgFC[[3]],
+                       "lgfc_toluene_f" = dexp$lgFC[[4]],
+                       "lgfc_dioxin_m" = dexp$lgFC[[5]],
+                       "lgfc_formaldehyde_m" = dexp$lgFC[[6]],
+                       "lgfc_radiation_m" = dexp$lgFC[[7]],
+                       "lgfc_toluene_m" = dexp$lgFC[[8]],
+                       "lgfc_temperature_C4_H24" = dexp$lgFC[[9]],
+                       "lgfc_temperature_C0_H24" = dexp$lgFC[[10]],
+                       "lgfc_temperature_C-4_H24" = dexp$lgFC[[11]],
+                       "lgfc_fungus_min_H24" = dexp$lgFC[[12]],
+                       "lgfc_fungus_max_H24" = dexp$lgFC[[13]],
+                       "lgfc_radiation_G200_H48" = dexp$lgFC[[14]],
+                       "lgfc_radiation_G500_H48" = dexp$lgFC[[15]],
+                       "lgfc_radiation_G1200_H48" = dexp$lgFC[[16]],
+                       "lgfc_starvation_exists_H16" = dexp$lgFC[[17]]
 )
 df_table$FBtr <- as.character(df_table$FBtr)
+write.table(df_table,file=paste("./Figures/datatable.csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
 
 v_rname <- pv <- av <- vector()
 for(i in 1:dim(dexp$pval)[2]) {

@@ -1,12 +1,12 @@
-plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {    
+plotHeatmap <- function(dexp,contrasts,gsets,gsetgroup,type, pcutoff) {    
     
     v_gs_sg_names <- v_contr <- vector() 
     rm(lgfc, v_g_pvalues, m_tr_fc_simpl, v_gs_pvalues, m_gs_pvalues)
-    sets[is.na(sets[,1])==TRUE,1] <- "missing"; sets[is.na(sets[,2])==TRUE,2] <- "missing"
-    sets[is.na(sets[,3])==TRUE,3] <- "missing"; sets[is.na(sets[,4])==TRUE,4] <- "missing"
+    gsets[is.na(gsets[,1])==TRUE,1] <- "missing"; gsets[is.na(gsets[,2])==TRUE,2] <- "missing"
+    gsets[is.na(gsets[,3])==TRUE,3] <- "missing"; gsets[is.na(gsets[,4])==TRUE,4] <- "missing"
     
     #########################
-    # calculate significant gene sets
+    # calculate significant gene gsets
     for (contrast in contrasts) {
         a <- unlist(strsplit(contrast, split=" - "))
         v_contr <- append(v_contr, a[2])
@@ -18,13 +18,13 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
         }; v_g_pvalues[v_g_pvalues==0] <- 1e-10; v_g_pvalues[is.na(v_g_pvalues)] <- 1
         
         
-        # calculate initial values for non-regulated significant gene sets
+        # calculate initial values for non-regulated significant gene gsets
         if (file.exists(paste("./Data/GSA_hyper_",gsetgroup,contrast,"_",pcutoff,".rds",sep=""))) {
             gsah <- readRDS(paste("./Data/GSA_hyper_",gsetgroup,contrast,"_",pcutoff,".rds",sep=""))
         } else {
             gsah <- enrichSets(dexp = dexp, 
                                pvalues = v_g_pvalues, 
-                               sets = sets, 
+                               gsets = gsets, 
                                pcutoff = pcutoff)
             saveRDS(gsah,paste("./Data/GSA_hyper_",gsetgroup,contrast,"_",pcutoff,".rds",sep="")) 
         } 
@@ -48,7 +48,7 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
         }
         
         
-        # calculate initial values for up- & down-regulated significant gene sets
+        # calculate initial values for up- & down-regulated significant gene gsets
         lgfc <- dexp$lgFC[[contrast]]; lgfc[is.na(lgfc)] <- 0
         
         if (exists("m_tr_fc_simpl")==FALSE) {
@@ -81,7 +81,7 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     df_tr_fc_simpl <- as.data.frame(m_tr_fc_simpl); 
     df_tr_fc_simpl$FBtranscriptID <- rownames(df_tr_fc_simpl)
     
-    df_sets_gs_simpl <- merge(sets,df_tr_fc_simpl,by="FBtranscriptID")
+    df_sets_gs_simpl <- merge(gsets,df_tr_fc_simpl,by="FBtranscriptID")
     df_sets_gs_sg_simpl <- df_sets_gs_simpl[df_sets_gs_simpl$GSET %in% v_gs_sg_names,]
     
     
@@ -146,7 +146,7 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     }
     
     
-    listGenes <- function (df_sets_gs_simpl, m_gs_count, sets, v_contr){
+    listGenes <- function (df_sets_gs_simpl, m_gs_count, gsets, v_contr){
         
         v_gs_names <- names(as.matrix(m_gs_count)[,1])
         df_entrList <- data.frame(matrix(NA, nrow = dim(m_gs_count)[1], ncol = (dim(m_gs_count)[2]*2+1)))
@@ -178,18 +178,17 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
     colnames(m_gset_gn_counta) <- colnames(m_gset_gn_countp) <- colnames(m_gset_gn_countn) <- v_contr
     
     
-
-    df_entrList_sa <- listGenes(df_sets_gs_simpl_a, m_gs_sga_simpl, sets, v_contr)
-    df_entrList_sp <- listGenes(df_sets_gs_simpl_p, m_gs_sgp_simpl, sets, v_contr)
-    df_entrList_sn <- listGenes(df_sets_gs_simpl_n, m_gs_sgn_simpl, sets, v_contr)
+    df_entrList_sa <- listGenes(df_sets_gs_simpl_a, m_gs_sga_simpl, gsets, v_contr)
+    df_entrList_sp <- listGenes(df_sets_gs_simpl_p, m_gs_sgp_simpl, gsets, v_contr)
+    df_entrList_sn <- listGenes(df_sets_gs_simpl_n, m_gs_sgn_simpl, gsets, v_contr)
     
-    df_entrList_dea <- listGenes(df_sets_gs_simpl_a, m_gset_gn_counta, sets, v_contr)
-    df_entrList_dep <- listGenes(df_sets_gs_simpl_p, m_gset_gn_countp, sets, v_contr)
-    df_entrList_den <- listGenes(df_sets_gs_simpl_n, m_gset_gn_countn, sets, v_contr)
-
+    df_entrList_dea <- listGenes(df_sets_gs_simpl_a, m_gset_gn_counta, gsets, v_contr)
+    df_entrList_dep <- listGenes(df_sets_gs_simpl_p, m_gset_gn_countp, gsets, v_contr)
+    df_entrList_den <- listGenes(df_sets_gs_simpl_n, m_gset_gn_countn, gsets, v_contr)
 
     
     # draw heatmaps
+    # sg means those genesets having small p.adj of genesets
     if (length(m_gs_sga_simpl)>0) {
         png(paste("./Figures/heatmap_",gsetgroup,"_sg_all_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gs_sga_simpl)[1]+1800),res=300,pointsize=8)
         heatmap.2(m_gs_sga_simpl[!(rownames(m_gs_sga_simpl) %in% "missing"),], col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("All significant gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5) 
@@ -208,7 +207,8 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
         dev.off()
         write.table(df_entrList_sn,file=paste("./Figures/heatmap_",gsetgroup,"_sg_neg_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
     }
-            
+    
+    # de means those genesets having genes with small p value
     if (length(m_gset_gn_counta)>0) {
         png(paste("./Figures/heatmap_",gsetgroup,"_de_all_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_counta)[1]+1800),res=300,pointsize=8)
         heatmap.2(m_gset_gn_counta[!(rownames(m_gset_gn_counta) %in% "missing"),],col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=1, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("All DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
@@ -227,6 +227,33 @@ plotHeatmap <- function(dexp,contrasts,sets,gsetgroup,type, pcutoff) {
         dev.off()
         write.table(df_entrList_den,file=paste("./Figures/heatmap_",gsetgroup,"_de_neg_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
     }
+    
+#     # sgde means those genesets having small p.adj of genesets & showing No of genes with small p-value
+#     if (length(m_gset_gn_counta)>0) {
+#         png(paste("./Figures/heatmap_",gsetgroup,"_de_all_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_counta)[1]+1800),res=300,pointsize=8)
+#         heatmap.2(m_gset_gn_counta[which(!(rownames(m_gset_gn_counta) %in% "missing") & 
+#                                           (rownames(m_gset_gn_counta) %in% rownames(m_gs_sga_simpl)))
+#                                    ,],col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=1, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("All DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
+#         dev.off()
+# #         write.table(df_entrList_dea,file=paste("./Figures/heatmap_",gsetgroup,"_de_all_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
+#     }
+#     if (length(m_gset_gn_countp)>0) {
+#         png(paste("./Figures/heatmap_",gsetgroup,"_de_pos_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_countp)[1]+1800),res=300,pointsize=8)
+#         heatmap.2(m_gset_gn_countp[which(!(rownames(m_gset_gn_countp) %in% "missing") & 
+#                                              (rownames(m_gset_gn_countp) %in% rownames(m_gs_sgp_simpl)) )
+#                                          ,],col=colorRampPalette(brewer.pal(9,"GnBu"))(100), ,lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Up-regulated DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
+#         dev.off()
+# #         write.table(df_entrList_dep,file=paste("./Figures/heatmap_",gsetgroup,"_de_pos_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
+#     }
+#     if (length(m_gset_gn_countn)>0) {
+#         png(paste("./Figures/heatmap_",gsetgroup,"_de_neg_",type,"_",pcutoff,".png",sep=""),width=1200,height=(50*dim(m_gset_gn_countn)[1]+1800),res=300,pointsize=8)
+#         heatmap.2(m_gset_gn_countn[which(!(rownames(m_gset_gn_countn) %in% "missing") & 
+#                                              (rownames(m_gset_gn_countn) %in% rownames(m_gs_sgn_simpl)) 
+#                                    ,],col=colorRampPalette(brewer.pal(9,"GnBu"))(100),lmat=rbind(c(4,3),c(1,2)),lhei=c(1,10),lwid=c(6,4), margins=c(17,9), Key=TRUE, keysize=0.2, dendrogram="none", density.info="none", trace="none",Rowv = FALSE, Colv=FALSE); mtext(paste("Down-regulated DE gene sets, ",type, "=",pcutoff,sep=""), side = 1, line=3, cex=1.5)
+#         dev.off()
+# #         write.table(df_entrList_den,file=paste("./Figures/heatmap_",gsetgroup,"_de_neg_",type,"_",pcutoff,".csv",sep=""),sep=";",na="",row.names=FALSE,col.names=TRUE)
+#     }
+#     
 
 #     
 }

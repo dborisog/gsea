@@ -5,9 +5,9 @@ loadSets <- function(group) {
     } else {
         
         if (group=="rfbr_orthologs") {
-            dmT <- readRDS("./Data/dmT_lg.rds") #see prepareGSets.R for more info
-            dmT[is.na(dmT[,1]),1] <- "missing"; dmT[is.na(dmT[,2]),2] <- "missing"; dmT[is.na(dmT[,3]),3] <- "missing"; dmT[is.na(dmT[,4]),4] <- "missing"
-            FBtr_entrezid_gset <- unique(dmT[,c(2,1,4)])
+            dmT <- readRDS("./Data/dmT2_lg.rds") #see prepareGSets.R for more info
+            dmT <- dmT[dmT[,3]!="missing",]
+            tr_entr_gset_symb <- unique(dmT)
             
         } else if(group=="kegg") {
             

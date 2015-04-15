@@ -6,6 +6,8 @@ exprDiff <- function(arrayData, contrasts) {
     for (i in 1:length(contrasts)) {
         a <- unlist(strsplit(contrasts[i], split=" - "))
         
+        print(paste("process",contrasts[i], Sys.time(),sep=" "))
+        
         if (file.exists(paste("./Data/de_nbinom_",a[1],"_",a[2],".rds",sep=""))) {
             res<- readRDS(paste("./Data/de_nbinom_",a[1],"_",a[2],".rds",sep=""))
         } else {

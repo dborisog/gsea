@@ -1,4 +1,36 @@
 
+#########################################################
+#########################################################
+#########################################################
+#########################################################
+
+dmT <- readRDS("./Data/dmT_lg.rds")
+dmT
+rm(trnscrNames,trnscrNames2,ensembl)
+trnscrNames <- mappedkeys(org.Dm.egENSEMBLTRANS2EG)
+ensembl = useMart("ensembl", dataset="dmelanogaster_gene_ensembl")
+trnscrNames2 <- getBM(attributes=c("flybase_transcript_id"), mart=ensembl)
+trnscrNames <- unique(c(as.character(trnscrNames), as.character(trnscrNames2)))
+
+# for either of GO: "biological_process" "molecular_function" "cellular_component" 
+
+x <- getBM(attributes=c("flybase_transcript_id", "entrezgene","flybasename_gene"),values=trnscrNames, mart=ensembl)
+dmT2 <- dmT[,c(1,4)]
+df_orth <- merge(x, dmT2, by.x="entrezgene",by.y="ENTREZID",all.x=TRUE)
+df_orth[is.na(df_orth[,4]),4] <- "missing"
+df_orth <- df_orth[!is.na(df_orth[,1]),]
+df_orth <- df_orth[,c(2,1,4,3)]
+colnames(df_orth) <- c("FBtranscriptID", "ENTREZID","GSET","GNAME")
+
+saveRDS(df_orth,paste("./Data/dmT2_lg.rds",sep=""))
+
+
+
+#########################################################
+#########################################################
+#########################################################
+#########################################################
+
 library("AnnotationDbi")
 library("GenomicFeatures")
 library("DESeq")
